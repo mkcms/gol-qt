@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 
 project(gameoflife CXX)
+set(CMAKE_CXX_STANDARD 14)
 
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 
