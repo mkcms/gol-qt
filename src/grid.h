@@ -31,7 +31,7 @@ public slots:
     void setCellStateAt(int x, int y, bool state);
 
 signals:
-    void sizeChanged(int newSizeX, int newSizeY);
+    void sizeChanged(int oldSizeX, int oldSizeY, int newSizeX, int newSizeY);
     void cellStateChanged(int x, int y, bool state);
 
 public:

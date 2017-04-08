@@ -19,7 +19,7 @@ void Grid::appendCols(int n)
 
 void Grid::setSize(int rows, int cols)
 {
-    const int currentRows = this->rows();
+    const int currentRows = this->rows(), currentCols = this->cols();
 
     if (rows > currentRows)
         m_grid.insert(m_grid.end(), rows - currentRows, QVector<Cell>(cols));
@@ -32,7 +32,7 @@ void Grid::setSize(int rows, int cols)
             row.erase(row.end() - (row.size() - cols), row.end());
     }
 
-    emit sizeChanged(rows, cols);
+    emit sizeChanged(currentRows, currentCols, rows, cols);
 }
 
 void Grid::setCellStateAt(int x, int y, bool state)
