@@ -13,6 +13,7 @@ public:
     {
     public:
         QVariant& data() const { return m_data; }
+        void setData(const QVariant &data) const { m_data = data; };
 
     private:
         friend class Grid;
