@@ -25,19 +25,22 @@ public:
 
 public slots:
     void appendRows(int n);
+    void eraseRows(int n);
     void appendCols(int n);
+    void eraseCols(int n);
     void setSize(int rows, int cols);
-
     void setCellStateAt(int x, int y, bool state);
 
 signals:
-    void sizeChanged(int oldSizeX, int oldSizeY, int newSizeX, int newSizeY);
+    void cellAdded(int x, int y);
+    void cellRemoved(int x, int y);
     void cellStateChanged(int x, int y, bool state);
+    void sizeChanged(int oldSizeX, int oldSizeY, int newSizeX, int newSizeY);
 
 public:
     const Cell& cellAt(int x, int y) const { return m_grid[x][y]; }
-    int rows() const { return m_grid.size(); }
-    int cols() const { return m_grid[0].size(); }
+    int cols() const { return m_grid.size(); }
+    int rows() const { return m_grid.empty() ? 0 : m_grid[0].size(); }
 
 private:
     QVector<QVector<Cell>> m_grid;
