@@ -59,7 +59,7 @@ void Grid::eraseCols(int n)
     while (n--) {
         for (auto& row : m_grid.back())
             emit cellRemoved(m_grid.size() - 1, &row - &*m_grid.back().begin());
-        m_grid.erase(m_grid.end());
+        m_grid.erase(m_grid.end() - 1);
     }
 
     emit sizeChanged(oldCount, rows(), cols(), rows());
