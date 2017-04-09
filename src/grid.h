@@ -28,6 +28,8 @@ public slots:
     void eraseRows(int n);
     void appendCols(int n);
     void eraseCols(int n);
+    void setRowCount(int rows) { setSize(rows, cols()); }
+    void setColCount(int cols) { setSize(rows(), cols); }
     void setSize(int rows, int cols);
     void setCellStateAt(int x, int y, bool state);
 
