@@ -22,6 +22,7 @@ private:
 public:
     Grid *grid() { return m_grid; }
     QGraphicsView *view() { return m_view; }
+    QPoint cellAtPos(const QPoint &point);
 
 private slots:
     void addCell(int x, int y);

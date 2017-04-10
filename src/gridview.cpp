@@ -21,6 +21,17 @@ void GridView::drawInitialGrid()
             addCell(i, j);
 }
 
+QPoint GridView::cellAtPos(const QPoint &point)
+{
+    QGraphicsItem *atPos = m_view->itemAt(point);
+    if (!atPos)
+        return QPoint(-1, -1);
+
+    QPoint ret = point;
+    ret /= RectSize;
+    return ret;
+}
+
 void GridView::addCell(int x, int y)
 {
     QGraphicsScene *scene = m_view->scene();
