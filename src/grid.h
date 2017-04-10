@@ -14,6 +14,7 @@ public:
     public:
         QVariant& data() const { return m_data; }
         void setData(const QVariant &data) const { m_data = data; };
+        bool state() const { return m_state; }
 
     private:
         friend class Grid;
