@@ -27,6 +27,7 @@ public:
 private slots:
     void addCell(int x, int y);
     void removeCell(int x, int y);
+    void cellStateChanged(int x, int y, bool state);
 
 private:
     Grid *m_grid;

@@ -1,4 +1,5 @@
 #include <QGraphicsRectItem>
+#include <QtGlobal>
 #include <QGraphicsView>
 #include "gridview.h"
 
@@ -9,6 +10,7 @@ GridView::GridView(Grid *grid, QGraphicsView *view, QObject *parent)
 {
     connect(grid, SIGNAL(cellAdded(int,int)), this, SLOT(addCell(int,int)));
     connect(grid, SIGNAL(cellRemoved(int,int)), this, SLOT(removeCell(int,int)));
+    connect(grid, SIGNAL(cellStateChanged(int,int,bool)), this, SLOT(cellStateChanged(int,int,bool)));
 
     view->setScene(new QGraphicsScene(view));
     drawInitialGrid();
@@ -48,4 +50,15 @@ void GridView::removeCell(int x, int y)
     QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(cell.data());
 
     delete item;
+}
+
+void GridView::cellStateChanged(int x, int y, bool state)
+{
+    const Grid::Cell &cell = m_grid->cellAt(x, y);
+    QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(cell.data());
+
+    if (state)
+        item->setBrush(Qt::black);
+    else
+        item->setBrush(Qt::white);
 }
