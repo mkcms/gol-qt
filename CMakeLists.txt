@@ -4,6 +4,10 @@ project(gameoflife CXX)
 set(CMAKE_CXX_STANDARD 14)
 
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+find_package(Boost REQUIRED COMPONENTS)
+
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -13,4 +17,4 @@ qt5_wrap_ui(QT_UI_HEADERS resources/mainwindow.ui)
 file(GLOB SOURCES src/*.cpp)
 
 add_executable(gameoflife ${SOURCES} ${QT_UI_HEADERS})
-target_link_libraries(gameoflife Qt5::Widgets)
+target_link_libraries(gameoflife Qt5::Widgets ${Boost_LIBRARIES})
