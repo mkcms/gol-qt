@@ -41,6 +41,7 @@ signals:
     void sizeChanged(int oldSizeX, int oldSizeY, int newSizeX, int newSizeY);
 
 public:
+    Cell& cellAt(int x, int y) { return m_grid[x][y]; }
     const Cell& cellAt(int x, int y) const { return m_grid[x][y]; }
     int cols() const { return m_grid.size(); }
     int rows() const { return m_grid.empty() ? 0 : m_grid[0].size(); }
