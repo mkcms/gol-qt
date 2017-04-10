@@ -34,6 +34,7 @@ public slots:
     void setColCount(int cols) { setSize(rows(), cols); }
     void setSize(int rows, int cols);
     void setCellStateAt(int x, int y, bool state);
+    void toggleCellAt(int x, int y) { setCellStateAt(x, y, !cellAt(x, y).m_state); }
 
 signals:
     void cellAdded(int x, int y);
