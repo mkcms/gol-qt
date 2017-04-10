@@ -27,7 +27,8 @@ QPoint GridView::cellAtPos(const QPoint &point)
     if (!atPos)
         return QPoint(-1, -1);
 
-    QPoint ret = point;
+    QPoint ret = atPos->scenePos().toPoint();
+
     ret /= RectSize;
     return ret;
 }
@@ -35,7 +36,8 @@ QPoint GridView::cellAtPos(const QPoint &point)
 void GridView::addCell(int x, int y)
 {
     QGraphicsScene *scene = m_view->scene();
-    QGraphicsRectItem *item = scene->addRect(x * RectSize, y * RectSize, RectSize, RectSize);
+    QGraphicsRectItem *item = scene->addRect(0, 0, RectSize, RectSize);
+    item->setPos(QPointF(x * RectSize, y * RectSize));
 
     m_grid->cellAt(x, y).setData(QVariant::fromValue(item));
 }
