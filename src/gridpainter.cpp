@@ -11,7 +11,7 @@ GridPainter::GridPainter(GridView *view, QObject *parent)
     view->view()->viewport()->installEventFilter(this);
 }
 
-bool GridPainter::eventFilter(QObject *, QEvent *event)
+bool GridPainter::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::MouseMove) {
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
@@ -33,5 +33,5 @@ bool GridPainter::eventFilter(QObject *, QEvent *event)
     if (event->type() == QEvent::MouseButtonRelease)
         m_mousePressed = false;
 
-    return false;
+    return QObject::eventFilter(object, event);
 }
