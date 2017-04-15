@@ -12,6 +12,66 @@ inline uint qHash(const QPoint& key)
     return qHash(QPair<int, int>(key.x(), key.y()));
 }
 
+class GridCellNeighbourIterator
+{
+public:
+    static constexpr QPoint offsets[] =
+    {
+        {-1, 0}, {0, -1}, {1, 0},
+        {1, 0}, {0, 1}, {0, 1},
+        {-1, 0}, {-1, 0}
+    };
+
+    GridCellNeighbourIterator() = default;
+    GridCellNeighbourIterator(QPoint cell, QPoint extent)
+        : m_curCell(cell), m_extent(extent)
+    {
+        ++*this;
+    }
+
+    QPoint operator*() const { return m_curCell; }
+    GridCellNeighbourIterator& operator++()
+    {
+        ++m_curOffset;
+        if (m_curOffset < 8) {
+            m_curCell += offsets[m_curOffset];
+            if (!valid())
+                ++*this;
+        }
+        return *this;
+    }
+
+    GridCellNeighbourIterator operator++(int)
+    {
+        auto ret = *this;
+        ++*this;
+        return ret;
+    }
+
+    bool operator==(const GridCellNeighbourIterator& rhs) const
+    {
+        return rhs.m_curOffset == -1
+            ? m_curOffset >= 8
+            : m_curCell == rhs.m_curCell;
+    }
+
+    bool operator!=(const GridCellNeighbourIterator& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
+private:
+    bool valid() const
+    {
+        int x = m_curCell.x(), y = m_curCell.y();
+        return x >= 0 && y >= 0 && x < m_extent.x() && y < m_extent.y();
+    }
+
+    QPoint m_curCell;
+    QPoint m_extent;
+    int m_curOffset = -1;
+};
+
 class Grid : public QObject
 {
     Q_OBJECT
@@ -42,6 +102,10 @@ signals:
 public:
     bool stateAt(int x, int y) const { return m_grid[x][y]; }
     QVariant dataAt(int x, int y) const { return m_data.value(QPoint(x, y)); }
+    GridCellNeighbourIterator neighbourIterator(int x, int y) const
+    {
+        return { {x, y}, {cols(), rows()} };
+    }
     int cols() const { return m_grid.size(); }
     int rows() const { return m_grid.empty() ? 0 : m_grid[0].size(); }
 

@@ -1,6 +1,8 @@
 #include "grid.h"
 #include <QtGlobal>
 
+constexpr QPoint GridCellNeighbourIterator::offsets[];
+
 Grid::Grid(int rows, int cols, QObject *parent)
     : QObject(parent)
 {
