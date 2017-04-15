@@ -13,20 +13,18 @@ GridPainter::GridPainter(GridView *view, QObject *parent)
 
 bool GridPainter::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::MouseMove) {
+    if (event->type() == QEvent::MouseMove && m_mousePressed) {
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-        QPoint cell = m_view->cellAtPos(mouseEvent->pos());
-        if (cell.x() != -1 && m_mousePressed)
-            m_view->grid()->setCellStateAt(cell.x(), cell.y(), m_paintMode);
+        if (auto cell = m_view->cellAtPos(mouseEvent->pos()))
+	    m_view->grid()->setCellStateAt(cell->x(), cell->y(), m_paintMode);
     }
 
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-        QPoint cell = m_view->cellAtPos(mouseEvent->pos());
-        if (cell.x() != -1) {
+        if (auto cell = m_view->cellAtPos(mouseEvent->pos())) {
             m_mousePressed = true;
-            m_paintMode = !m_view->grid()->cellAt(cell.x(), cell.y()).state();
-            m_view->grid()->setCellStateAt(cell.x(), cell.y(), m_paintMode);
+            m_paintMode = !m_view->grid()->stateAt(cell->x(), cell->y());
+            m_view->grid()->setCellStateAt(cell->x(), cell->y(), m_paintMode);
         }
     }
 
