@@ -41,21 +41,19 @@ void GridView::addCell(int x, int y)
     QGraphicsRectItem *item = scene->addRect(0, 0, RectSize, RectSize);
     item->setPos(QPointF(x * RectSize, y * RectSize));
 
-    m_grid->cellAt(x, y).setData(QVariant::fromValue(item));
+    m_grid->setCellDataAt(x, y, QVariant::fromValue(item));
 }
 
 void GridView::removeCell(int x, int y)
 {
-    const Grid::Cell &cell = m_grid->cellAt(x, y);
-    QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(cell.data());
+    QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(m_grid->dataAt(x, y));
 
     delete item;
 }
 
 void GridView::cellStateChanged(int x, int y, bool state)
 {
-    const Grid::Cell &cell = m_grid->cellAt(x, y);
-    QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(cell.data());
+    QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(m_grid->dataAt(x, y));
 
     if (state)
         item->setBrush(Qt::black);
