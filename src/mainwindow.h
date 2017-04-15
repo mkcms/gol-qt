@@ -2,9 +2,10 @@
 #define MAINWINDOW_H_INCLUDED
 
 #include <QMainWindow>
-#include "gridview.h"
-#include "grid.h"
 #include "ui_mainwindow.h"
+
+class Grid;
+class GridView;
 
 class MainWindow : public QMainWindow
 {

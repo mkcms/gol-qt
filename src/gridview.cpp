@@ -2,6 +2,7 @@
 #include <QtGlobal>
 #include <QGraphicsView>
 #include "gridview.h"
+#include "grid.h"
 
 GridView::GridView(Grid *grid, QGraphicsView *view, QObject *parent)
     : QObject(parent),

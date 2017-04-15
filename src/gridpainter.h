@@ -2,7 +2,8 @@
 #define GRIDPAINTER_H_INCLUDED
 
 #include <QObject>
-#include "gridview.h"
+
+class GridView;
 
 class GridPainter : public QObject
 {

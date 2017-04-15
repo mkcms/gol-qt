@@ -4,11 +4,11 @@
 #include <QObject>
 #include <boost/optional.hpp>
 #include <QGraphicsRectItem>
-#include "grid.h"
 
 Q_DECLARE_METATYPE(QGraphicsRectItem*);
 
 class QGraphicsView;
+class Grid;
 
 class GridView : public QObject
 {

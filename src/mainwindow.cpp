@@ -1,4 +1,6 @@
 #include "mainwindow.h"
+#include "gridview.h"
+#include "grid.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),

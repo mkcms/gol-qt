@@ -2,6 +2,8 @@
 #include <QEvent>
 #include <QMouseEvent>
 #include "gridpainter.h"
+#include "grid.h"
+#include "gridview.h"
 
 GridPainter::GridPainter(GridView *view, QObject *parent)
     : QObject(parent),
