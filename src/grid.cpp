@@ -29,7 +29,9 @@ void Grid::eraseRows(int n)
 
     while (n--) {
         for (auto& col : m_grid) {
-            emit cellRemoved(&col - &*m_grid.begin(), col.size() - 1);
+            QPoint pos(&col - &*m_grid.begin(), col.size() - 1);
+            emit cellRemoved(pos.x(), pos.y());
+            m_data.remove(pos);
             col.erase(col.end() - 1);
         }
     }
@@ -43,7 +45,7 @@ void Grid::appendCols(int n)
     const int oldCount = cols();
 
     while (n--) {
-        m_grid.append(QVector<Cell>(rows()));
+        m_grid.append(QVector<bool>(rows()));
         for (int i = 0; i < rows(); ++i)
             emit cellAdded(m_grid.size() - 1, i);
     }
@@ -57,8 +59,11 @@ void Grid::eraseCols(int n)
     const int oldCount = cols();
 
     while (n--) {
-        for (auto& row : m_grid.back())
-            emit cellRemoved(m_grid.size() - 1, &row - &*m_grid.back().begin());
+        for (auto& row : m_grid.back()) {
+            QPoint pos(m_grid.size() - 1, &row - &*m_grid.back().begin());
+            emit cellRemoved(pos.x(), pos.y());
+            m_data.remove(pos);
+	}
         m_grid.erase(m_grid.end() - 1);
     }
 
@@ -80,9 +85,9 @@ void Grid::setSize(int rows, int cols)
 
 void Grid::setCellStateAt(int x, int y, bool state)
 {
-    if (m_grid[x][y].m_state == state)
+    if (stateAt(x, y) == state)
         return;
 
-    m_grid[x][y].m_state = state;
+    m_grid[x][y] = state;
     emit cellStateChanged(x, y, state);
 }
