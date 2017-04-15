@@ -1,0 +1,64 @@
+#include <QGraphicsRectItem>
+#include <QtGlobal>
+#include <QGraphicsView>
+#include "gridview.h"
+
+GridView::GridView(Grid *grid, QGraphicsView *view, QObject *parent)
+    : QObject(parent),
+      m_grid(grid),
+      m_view(view)
+{
+    connect(grid, SIGNAL(cellAdded(int,int)), this, SLOT(addCell(int,int)));
+    connect(grid, SIGNAL(cellRemoved(int,int)), this, SLOT(removeCell(int,int)));
+    connect(grid, SIGNAL(cellStateChanged(int,int,bool)), this, SLOT(cellStateChanged(int,int,bool)));
+
+    view->setScene(new QGraphicsScene(view));
+    drawInitialGrid();
+}
+
+void GridView::drawInitialGrid()
+{
+    for (int i = 0; i < m_grid->cols(); ++i)
+        for (int j = 0; j < m_grid->rows(); ++j)
+            addCell(i, j);
+}
+
+QPoint GridView::cellAtPos(const QPoint &point)
+{
+    QGraphicsItem *atPos = m_view->itemAt(point);
+    if (!atPos)
+        return QPoint(-1, -1);
+
+    QPoint ret = atPos->scenePos().toPoint();
+
+    ret /= RectSize;
+    return ret;
+}
+
+void GridView::addCell(int x, int y)
+{
+    QGraphicsScene *scene = m_view->scene();
+    QGraphicsRectItem *item = scene->addRect(0, 0, RectSize, RectSize);
+    item->setPos(QPointF(x * RectSize, y * RectSize));
+
+    m_grid->cellAt(x, y).setData(QVariant::fromValue(item));
+}
+
+void GridView::removeCell(int x, int y)
+{
+    const Grid::Cell &cell = m_grid->cellAt(x, y);
+    QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(cell.data());
+
+    delete item;
+}
+
+void GridView::cellStateChanged(int x, int y, bool state)
+{
+    const Grid::Cell &cell = m_grid->cellAt(x, y);
+    QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(cell.data());
+
+    if (state)
+        item->setBrush(Qt::black);
+    else
+        item->setBrush(Qt::white);
+}

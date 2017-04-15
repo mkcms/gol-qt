@@ -2,6 +2,8 @@
 #define MAINWINDOW_H_INCLUDED
 
 #include <QMainWindow>
+#include "gridview.h"
+#include "grid.h"
 #include "ui_mainwindow.h"
 
 class MainWindow : public QMainWindow
@@ -13,6 +15,8 @@ public:
 
 private:
     Ui::MainWindow *m_ui;
+    Grid *m_grid;
+    GridView *m_gridview;
 };
 
 #endif /* MAINWINDOW_H_INCLUDED */
