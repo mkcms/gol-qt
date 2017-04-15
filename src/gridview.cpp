@@ -27,10 +27,10 @@ void GridView::drawInitialGrid()
 boost::optional<QPoint> GridView::cellAtPos(const QPoint &point)
 {
     if (QGraphicsItem *atPos = m_view->itemAt(point)) {
-	QPoint ret = atPos->scenePos().toPoint();
+        QPoint ret = atPos->scenePos().toPoint();
 
-	ret /= RectSize;
-	return ret;
+        ret /= RectSize;
+        return ret;
     }
 
     return boost::none;

@@ -63,7 +63,7 @@ void Grid::eraseCols(int n)
             QPoint pos(m_grid.size() - 1, &row - &*m_grid.back().begin());
             emit cellRemoved(pos.x(), pos.y());
             m_data.remove(pos);
-	}
+        }
         m_grid.erase(m_grid.end() - 1);
     }
 

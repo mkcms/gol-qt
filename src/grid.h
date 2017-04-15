@@ -29,7 +29,7 @@ public slots:
     void setCellStateAt(int x, int y, bool state);
     void setCellDataAt(int x, int y, const QVariant& data)
     {
-	m_data.insert(QPoint(x, y), data);
+        m_data.insert(QPoint(x, y), data);
     }
     void toggleCellAt(int x, int y) { setCellStateAt(x, y, !stateAt(x, y)); }
 

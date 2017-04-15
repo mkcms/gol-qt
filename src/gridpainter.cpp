@@ -18,7 +18,7 @@ bool GridPainter::eventFilter(QObject *object, QEvent *event)
     if (event->type() == QEvent::MouseMove && m_mousePressed) {
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
         if (auto cell = m_view->cellAtPos(mouseEvent->pos()))
-	    m_view->grid()->setCellStateAt(cell->x(), cell->y(), m_paintMode);
+            m_view->grid()->setCellStateAt(cell->x(), cell->y(), m_paintMode);
     }
 
     if (event->type() == QEvent::MouseButtonPress) {
