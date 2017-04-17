@@ -100,6 +100,13 @@ signals:
     void sizeChanged(int oldSizeX, int oldSizeY, int newSizeX, int newSizeY);
 
 public:
+    Grid *clone() const
+    {
+        Grid *ret = new Grid(cols(), rows());
+        ret->m_grid = m_grid;
+        // data not copied.
+        return ret;
+    }
     bool stateAt(int x, int y) const { return m_grid[x][y]; }
     QVariant dataAt(int x, int y) const { return m_data.value(QPoint(x, y)); }
     GridCellNeighbourIterator neighbourIterator(int x, int y) const
