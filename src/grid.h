@@ -2,6 +2,7 @@
 #define GRID_H_INCLUDED
 
 #include <QObject>
+#include <QSet>
 #include <QPoint>
 #include <QHash>
 #include <QVariant>
@@ -104,6 +105,7 @@ public:
     {
         Grid *ret = new Grid(cols(), rows());
         ret->m_grid = m_grid;
+        ret->m_activeCells = m_activeCells;
         // data not copied.
         return ret;
     }
@@ -115,10 +117,14 @@ public:
     }
     int cols() const { return m_grid.size(); }
     int rows() const { return m_grid.empty() ? 0 : m_grid[0].size(); }
+    const QSet<QPoint>& activeCells() const { return m_activeCells; }
+    QSet<QPoint>::const_iterator begin() const { return m_activeCells.begin(); }
+    QSet<QPoint>::const_iterator end() const { return m_activeCells.end(); }
 
 private:
     QVector<QVector<bool>> m_grid;
     QHash<QPoint, QVariant> m_data;
+    QSet<QPoint> m_activeCells;
 };
 
 #endif /* GRID_H_INCLUDED */

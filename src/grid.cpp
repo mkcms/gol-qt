@@ -90,6 +90,11 @@ void Grid::setCellStateAt(int x, int y, bool state)
     if (stateAt(x, y) == state)
         return;
 
+    if (state)
+        m_activeCells += {x, y};
+    else
+        m_activeCells.remove({x, y});
+
     m_grid[x][y] = state;
     emit cellStateChanged(x, y, state);
 }
