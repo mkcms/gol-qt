@@ -31,6 +31,7 @@ public:
     }
 
     QPoint operator*() const { return m_curCell; }
+    const QPoint* operator->() const { return &m_curCell; }
     GridCellNeighbourIterator& operator++()
     {
         ++m_curOffset;
