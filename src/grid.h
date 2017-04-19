@@ -2,6 +2,7 @@
 #define GRID_H_INCLUDED
 
 #include <QObject>
+#include <functional>
 #include <QSet>
 #include <QPoint>
 #include <QHash>
@@ -11,6 +12,17 @@
 inline uint qHash(const QPoint& key)
 {
     return qHash(QPair<int, int>(key.x(), key.y()));
+}
+
+namespace std {
+    template <>
+    struct hash<QPoint>
+    {
+        size_t operator()(const QPoint& point) const
+        {
+            return hash<int>()(point.x()) ^ hash<int>()(point.y());
+        }
+    };
 }
 
 class GridCellNeighbourIterator
