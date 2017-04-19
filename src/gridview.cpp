@@ -9,9 +9,9 @@ GridView::GridView(Grid *grid, QGraphicsView *view, QObject *parent)
       m_grid(grid),
       m_view(view)
 {
-    connect(grid, SIGNAL(cellAdded(int,int)), this, SLOT(addCell(int,int)));
-    connect(grid, SIGNAL(cellRemoved(int,int)), this, SLOT(removeCell(int,int)));
-    connect(grid, SIGNAL(cellStateChanged(int,int,bool)), this, SLOT(cellStateChanged(int,int,bool)));
+    connect(grid, SIGNAL(cellAdded(QPoint)), this, SLOT(addCell(QPoint)));
+    connect(grid, SIGNAL(cellRemoved(QPoint)), this, SLOT(removeCell(QPoint)));
+    connect(grid, SIGNAL(cellStateChanged(QPoint,bool)), this, SLOT(cellStateChanged(QPoint,bool)));
 
     view->setScene(new QGraphicsScene(view));
     drawInitialGrid();
@@ -21,7 +21,7 @@ void GridView::drawInitialGrid()
 {
     for (int i = 0; i < m_grid->cols(); ++i)
         for (int j = 0; j < m_grid->rows(); ++j)
-            addCell(i, j);
+            addCell({i, j});
 }
 
 boost::optional<QPoint> GridView::cellAtPos(const QPoint &point)
@@ -36,25 +36,25 @@ boost::optional<QPoint> GridView::cellAtPos(const QPoint &point)
     return boost::none;
 }
 
-void GridView::addCell(int x, int y)
+void GridView::addCell(QPoint cell)
 {
     QGraphicsScene *scene = m_view->scene();
     QGraphicsRectItem *item = scene->addRect(0, 0, RectSize, RectSize);
-    item->setPos(QPointF(x * RectSize, y * RectSize));
+    item->setPos(QPointF(cell * RectSize));
 
-    m_grid->setCellDataAt(x, y, QVariant::fromValue(item));
+    m_grid->setCellDataAt(cell, QVariant::fromValue(item));
 }
 
-void GridView::removeCell(int x, int y)
+void GridView::removeCell(QPoint cell)
 {
-    QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(m_grid->dataAt(x, y));
+    QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(m_grid->dataAt(cell));
 
     delete item;
 }
 
-void GridView::cellStateChanged(int x, int y, bool state)
+void GridView::cellStateChanged(QPoint cell, bool state)
 {
-    QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(m_grid->dataAt(x, y));
+    QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(m_grid->dataAt(cell));
 
     if (state)
         item->setBrush(Qt::black);

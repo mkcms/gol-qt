@@ -26,9 +26,9 @@ public:
     boost::optional<QPoint> cellAtPos(const QPoint &point);
 
 private slots:
-    void addCell(int x, int y);
-    void removeCell(int x, int y);
-    void cellStateChanged(int x, int y, bool state);
+    void addCell(QPoint cell);
+    void removeCell(QPoint cell);
+    void cellStateChanged(QPoint cell, bool state);
 
 private:
     Grid *m_grid;

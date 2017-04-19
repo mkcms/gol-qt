@@ -87,17 +87,17 @@ public slots:
     void setRowCount(int rows) { setSize(rows, cols()); }
     void setColCount(int cols) { setSize(rows(), cols); }
     void setSize(int rows, int cols);
-    void setCellStateAt(int x, int y, bool state);
-    void setCellDataAt(int x, int y, const QVariant& data)
+    void setCellStateAt(QPoint cell, bool state);
+    void setCellDataAt(QPoint cell, const QVariant& data)
     {
-        m_data.insert(QPoint(x, y), data);
+        m_data.insert(cell, data);
     }
-    void toggleCellAt(int x, int y) { setCellStateAt(x, y, !stateAt(x, y)); }
+    void toggleCellAt(QPoint cell) { setCellStateAt(cell, !stateAt(cell)); }
 
 signals:
-    void cellAdded(int x, int y);
-    void cellRemoved(int x, int y);
-    void cellStateChanged(int x, int y, bool state);
+    void cellAdded(QPoint cell);
+    void cellRemoved(QPoint cell);
+    void cellStateChanged(QPoint cell, bool state);
     void sizeChanged(int oldSizeX, int oldSizeY, int newSizeX, int newSizeY);
 
 public:
@@ -109,11 +109,11 @@ public:
         // data not copied.
         return ret;
     }
-    bool stateAt(int x, int y) const { return m_grid[x][y]; }
-    QVariant dataAt(int x, int y) const { return m_data.value(QPoint(x, y)); }
-    GridCellNeighbourIterator neighbourIterator(int x, int y) const
+    bool stateAt(QPoint cell) const { return m_grid[cell.x()][cell.y()]; }
+    QVariant dataAt(QPoint cell) const { return m_data.value(cell); }
+    GridCellNeighbourIterator neighbourIterator(QPoint cell) const
     {
-        return { {x, y}, {cols(), rows()} };
+        return { cell, {cols(), rows()} };
     }
     int cols() const { return m_grid.size(); }
     int rows() const { return m_grid.empty() ? 0 : m_grid[0].size(); }

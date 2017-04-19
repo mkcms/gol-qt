@@ -18,7 +18,7 @@ void Grid::appendRows(int n)
     for (auto& col : m_grid) {
         col.resize(col.size() + n);
         for (int i = col.size() - n; i < col.size(); ++i)
-            emit cellAdded(&col - &*m_grid.begin(), i);
+            emit cellAdded({ static_cast<int>(&col - &*m_grid.begin()), i});
     }
 
     emit sizeChanged(cols(), oldCount, cols(), rows());
@@ -32,7 +32,7 @@ void Grid::eraseRows(int n)
     while (n--) {
         for (auto& col : m_grid) {
             QPoint pos(&col - &*m_grid.begin(), col.size() - 1);
-            emit cellRemoved(pos.x(), pos.y());
+            emit cellRemoved({pos.x(), pos.y()});
             m_data.remove(pos);
             col.erase(col.end() - 1);
         }
@@ -49,7 +49,7 @@ void Grid::appendCols(int n)
     while (n--) {
         m_grid.append(QVector<bool>(rows()));
         for (int i = 0; i < rows(); ++i)
-            emit cellAdded(m_grid.size() - 1, i);
+            emit cellAdded({m_grid.size() - 1, i});
     }
 
     emit sizeChanged(oldCount, rows(), cols(), rows());
@@ -63,7 +63,7 @@ void Grid::eraseCols(int n)
     while (n--) {
         for (auto& row : m_grid.back()) {
             QPoint pos(m_grid.size() - 1, &row - &*m_grid.back().begin());
-            emit cellRemoved(pos.x(), pos.y());
+            emit cellRemoved({pos.x(), pos.y()});
             m_data.remove(pos);
         }
         m_grid.erase(m_grid.end() - 1);
@@ -85,16 +85,16 @@ void Grid::setSize(int rows, int cols)
         eraseCols(this->cols() - cols);
 }
 
-void Grid::setCellStateAt(int x, int y, bool state)
+void Grid::setCellStateAt(QPoint cell, bool state)
 {
-    if (stateAt(x, y) == state)
+    if (stateAt(cell) == state)
         return;
 
     if (state)
-        m_activeCells += {x, y};
+        m_activeCells += cell;
     else
-        m_activeCells.remove({x, y});
+        m_activeCells -= cell;
 
-    m_grid[x][y] = state;
-    emit cellStateChanged(x, y, state);
+    m_grid[cell.x()][cell.y()] = state;
+    emit cellStateChanged(cell, state);
 }
