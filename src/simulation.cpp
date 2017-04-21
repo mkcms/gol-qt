@@ -91,24 +91,42 @@ Simulation::Simulation(Grid *grid, QObject *parent)
 
 void Simulation::start(SimulationMode mode)
 {
+    Q_ASSERT(m_worker == nullptr);
+
     m_timer->setInterval(100);
     m_timer->setSingleShot(mode == SimulationMode::Step);
     m_timer->start();
+
+    m_worker = new Worker(m_grid);
+    m_worker->start();
 }
 
 void Simulation::step()
 {
+    Q_ASSERT(m_worker != nullptr);
+
     m_timer->setSingleShot(true);
     m_timer->start(0);
 }
 
 void Simulation::stop()
 {
+    Q_ASSERT(m_worker != nullptr);
+
+    m_worker->quit();
+    delete m_worker;
+    m_worker = nullptr;
     m_timer->stop();
 }
 
 void Simulation::simulationStep()
 {
+    if (auto changeset = m_worker->pop()) {
+        for (const QPoint& spawned : changeset->spawned)
+            m_grid->setCellStateAt(spawned, true);
+        for (const QPoint& spawned : changeset->died)
+            m_grid->setCellStateAt(spawned, false);
+    }
 }
 
 boost::optional<ChangeSet> Worker::pop(unsigned long waitTime)
