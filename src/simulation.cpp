@@ -126,6 +126,17 @@ void Simulation::stop()
     Q_ASSERT(m_worker != nullptr);
 
     m_worker->stop();
+
+    while (true) {
+        if (auto changeset = m_worker->pop(0)) {
+            for (const QPoint& cell : changeset->spawned)
+                m_grid->setCellStateAt(cell, true);
+            for (const QPoint& cell : changeset->died)
+                m_grid->setCellStateAt(cell, false);
+        }
+        else break;
+    }
+
     m_worker->wait();
     delete m_worker;
     m_worker = nullptr;
