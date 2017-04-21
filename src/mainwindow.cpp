@@ -39,6 +39,7 @@ void MainWindow::onSimulationStarted()
     m_activePainter = nullptr;
     m_ui->spinBoxGridSizeX->setEnabled(false);
     m_ui->spinBoxGridSizeY->setEnabled(false);
+    m_ui->pushButtonResetSimulation->setEnabled(true);
 }
 
 void MainWindow::onIdleStateEntered()
@@ -46,6 +47,7 @@ void MainWindow::onIdleStateEntered()
     m_activePainter = new GridPainter(m_gridview, this);
     m_ui->spinBoxGridSizeX->setEnabled(true);
     m_ui->spinBoxGridSizeY->setEnabled(true);
+    m_ui->pushButtonResetSimulation->setEnabled(false);
 }
 
 void MainWindow::setupStateMachine()
@@ -59,6 +61,7 @@ void MainWindow::setupStateMachine()
     QState *awaitUserInteraction = new QState(simulationRunning);
     QState *doSingleStep = new QState(simulationRunning);
     QState *normalSimulationMode = new QState(simulationRunning);
+    QState *resetSimulation = new QState(simulationRunning);
 
     idle->addTransition(m_ui->pushButtonStartSimulation, SIGNAL(clicked()),
                         normalSimulationMode);
@@ -72,6 +75,8 @@ void MainWindow::setupStateMachine()
     simulationRunning->addTransition(m_ui->pushButtonSimulationStep,
                                      SIGNAL(clicked()), doSingleStep);
     simulationRunning->addTransition(m_simulation, SIGNAL(ended()), idle);
+    simulationRunning->addTransition(m_ui->pushButtonResetSimulation,
+                                     SIGNAL(clicked()), resetSimulation);
     connect(simulationRunning, SIGNAL(entered()), this, SLOT(onSimulationStarted()));
 
 
@@ -90,6 +95,14 @@ void MainWindow::setupStateMachine()
 
     doSingleStep->addTransition(awaitUserInteraction);
     connect(doSingleStep, SIGNAL(entered()), m_simulation, SLOT(startOrDoSingleStep()));
+
+
+    resetSimulation->addTransition(idle);
+    connect(resetSimulation, &QState::entered, [this] {
+            m_simulation->stop();
+            m_grid->copyStateFrom(m_simulation->preSimulationGrid());
+        });
+
 
     machine->setInitialState(idle);
     machine->start();

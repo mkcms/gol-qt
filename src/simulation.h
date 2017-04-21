@@ -14,6 +14,7 @@ public:
     Simulation(Grid *grid, QObject *parent = nullptr);
 
     bool isRunning() const { return m_worker != nullptr; }
+    const Grid *preSimulationGrid() const { return m_preSimulationGrid; }
 public slots:
     void startOrContinue();
     void startOrDoSingleStep();
@@ -35,6 +36,7 @@ private:
     QTimer *m_timer;
     Worker *m_worker = nullptr;
     int m_delay = 100;
+    Grid *m_preSimulationGrid = nullptr;
 };
 
 #endif /* SIMULATION_H_INCLUDED */

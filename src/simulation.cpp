@@ -105,6 +105,7 @@ void Simulation::startWorker()
     connect(m_worker, SIGNAL(finished()), this, SLOT(waitForAndDeleteFinishedWorker()));
 
     m_worker->start();
+    m_preSimulationGrid = m_grid->clone();
 
     emit started();
 }
