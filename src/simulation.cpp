@@ -19,6 +19,14 @@ class ChangeSet
 public:
     QVector<QPoint> died;
     QVector<QPoint> spawned;
+
+    void apply(Grid *grid)
+    {
+        for (const QPoint& cell : spawned)
+            grid->setCellStateAt(cell, true);
+        for (const QPoint& cell : died)
+            grid->setCellStateAt(cell, false);
+    }
 };
 
 class Worker : public QThread
@@ -57,10 +65,7 @@ protected:
                 break;
             }
 
-            for (const QPoint& cell : cs.spawned)
-                m_grid->setCellStateAt(cell, true);
-            for (const QPoint& cell : cs.died)
-                m_grid->setCellStateAt(cell, false);
+            cs.apply(m_grid);
 
             push(cs);
             QMutexLocker lock(&m_mutex);
@@ -128,12 +133,8 @@ void Simulation::stop()
     m_worker->stop();
 
     while (true) {
-        if (auto changeset = m_worker->pop(0)) {
-            for (const QPoint& cell : changeset->spawned)
-                m_grid->setCellStateAt(cell, true);
-            for (const QPoint& cell : changeset->died)
-                m_grid->setCellStateAt(cell, false);
-        }
+        if (auto changeset = m_worker->pop(0))
+            changeset->apply(m_grid);
         else break;
     }
 
@@ -154,12 +155,8 @@ void Simulation::setDelay(int millis)
 
 void Simulation::simulationStep()
 {
-    if (auto changeset = m_worker->pop()) {
-        for (const QPoint& spawned : changeset->spawned)
-            m_grid->setCellStateAt(spawned, true);
-        for (const QPoint& spawned : changeset->died)
-            m_grid->setCellStateAt(spawned, false);
-    }
+    if (auto changeset = m_worker->pop())
+        changeset->apply(m_grid);
 }
 
 boost::optional<ChangeSet> Worker::pop(unsigned long waitTime)
