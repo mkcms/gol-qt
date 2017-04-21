@@ -21,6 +21,11 @@ MainWindow::MainWindow(QWidget *parent)
     m_simulation = new Simulation(m_grid, this);
 
     setupStateMachine();
+    QIcon repeatIcon(":/repeat.png");
+    QIcon stepForwardIcon(":/step-forward.png");
+
+    m_ui->pushButtonResetSimulation->setIcon(repeatIcon);
+    m_ui->pushButtonSimulationStep->setIcon(stepForwardIcon);
 }
 
 MainWindow::~MainWindow()
@@ -30,6 +35,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::setupStateMachine()
 {
+    QIcon playIcon(":/play.png");
+    QIcon pauseIcon(":/pause.png");
+
     QStateMachine *machine = new QStateMachine(this);
     QState *idle = new QState(machine);
     QState *simulationRunning = new QState(machine);
@@ -43,7 +51,8 @@ void MainWindow::setupStateMachine()
                         normalSimulationMode);
     idle->addTransition(m_ui->pushButtonSimulationStep, SIGNAL(clicked()),
                         doSingleStep);
-    idle->assignProperty(m_ui->pushButtonStartSimulation, "text", tr("Start"));
+
+    idle->assignProperty(m_ui->pushButtonStartSimulation, "icon", playIcon);
     idle->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
     connect(idle, &QState::entered, [this] {
             m_activePainter = new GridPainter(m_gridview, this);
@@ -56,13 +65,15 @@ void MainWindow::setupStateMachine()
     simulationRunning->addTransition(m_ui->pushButtonSimulationStep,
                                      SIGNAL(clicked()), doSingleStep);
 
-    normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "text", tr("Pause"));
+
+    normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "icon", pauseIcon);
     normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "checked", true);
     connect(normalSimulationMode, SIGNAL(entered()), m_simulation, SLOT(startOrContinue()));
     normalSimulationMode->addTransition(m_ui->pushButtonStartSimulation, SIGNAL(clicked()),
                                         doSingleStep);
 
-    awaitUserInteraction->assignProperty(m_ui->pushButtonStartSimulation, "text", tr("Continue"));
+
+    awaitUserInteraction->assignProperty(m_ui->pushButtonStartSimulation, "icon", playIcon);
     awaitUserInteraction->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
     awaitUserInteraction->addTransition(m_ui->pushButtonStartSimulation,
                                         SIGNAL(clicked()), normalSimulationMode);
