@@ -37,6 +37,7 @@ private:
     Grid *m_grid;
     QTimer *m_timer;
     Worker *m_worker = nullptr;
+    int m_delay = 100;
 };
 
 #endif /* SIMULATION_H_INCLUDED */

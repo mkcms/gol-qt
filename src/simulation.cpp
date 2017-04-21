@@ -150,13 +150,14 @@ void Simulation::setDelay(int millis)
 {
     Q_ASSERT(millis >= 0);
 
-    m_timer->setInterval(millis);
+    m_delay = millis;
 }
 
 void Simulation::simulationStep()
 {
     if (auto changeset = m_worker->pop())
         changeset->apply(m_grid);
+    m_timer->setInterval(m_delay);
 }
 
 void Simulation::waitForAndDeleteFinishedWorker()
