@@ -6,6 +6,7 @@
 
 class Grid;
 class GridView;
+class Simulation;
 
 class MainWindow : public QMainWindow
 {
@@ -15,9 +16,13 @@ public:
     virtual ~MainWindow();
 
 private:
+    void setupStateMachine();
+
     Ui::MainWindow *m_ui;
     Grid *m_grid;
     GridView *m_gridview;
+    QObject *m_activePainter = nullptr;
+    Simulation *m_simulation;
 };
 
 #endif /* MAINWINDOW_H_INCLUDED */
