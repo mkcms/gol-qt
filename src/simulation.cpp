@@ -43,6 +43,8 @@ public:
 
         m_cond.wakeAll();
     }
+signals:
+    void exhausted();
 
 protected:
     virtual void run() override
@@ -50,8 +52,10 @@ protected:
         while (true) {
             ChangeSet cs = nextGeneration();
 
-            if (cs.died.empty() && cs.spawned.empty())
+            if (cs.died.empty() && cs.spawned.empty()) {
+                emit exhausted();
                 break;
+            }
 
             for (const QPoint& cell : cs.spawned)
                 m_grid->setCellStateAt(cell, true);
@@ -102,13 +106,7 @@ void Simulation::start(SimulationMode mode)
         return;
 
     m_worker = new Worker(m_grid);
-    connect(m_worker, &Worker::finished, this, [this] {
-            // I think this check is necessary because
-            // a worker might emit this signal after we have
-            // forcefully stopped the simulation.
-            if (sender() == m_worker)
-                stop();
-    });
+    connect(m_worker, SIGNAL(exhausted()), this, SLOT(stop()));
 
     m_worker->start();
 
