@@ -98,6 +98,14 @@ void Simulation::start(SimulationMode mode)
     m_timer->start();
 
     m_worker = new Worker(m_grid);
+    connect(m_worker, &Worker::finished, this, [this] {
+            // I think this check is necessary because
+            // a worker might emit this signal after we have
+            // forcefully stopped the simulation.
+            if (sender() == m_worker)
+                stop();
+    });
+
     m_worker->start();
 
     emit started();
