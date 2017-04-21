@@ -117,6 +117,19 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QDial" name="dialSimulationSpeed">
+            <property name="maximumSize">
+             <size>
+              <width>40</width>
+              <height>40</height>
+             </size>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
