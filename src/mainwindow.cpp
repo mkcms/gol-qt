@@ -33,6 +33,21 @@ MainWindow::~MainWindow()
     delete m_ui;
 }
 
+void MainWindow::onSimulationStarted()
+{
+    delete m_activePainter;
+    m_activePainter = nullptr;
+    m_ui->spinBoxGridSizeX->setEnabled(false);
+    m_ui->spinBoxGridSizeY->setEnabled(false);
+}
+
+void MainWindow::onIdleStateEntered()
+{
+    m_activePainter = new GridPainter(m_gridview, this);
+    m_ui->spinBoxGridSizeX->setEnabled(true);
+    m_ui->spinBoxGridSizeY->setEnabled(true);
+}
+
 void MainWindow::setupStateMachine()
 {
     QIcon playIcon(":/play.png");
@@ -54,20 +69,11 @@ void MainWindow::setupStateMachine()
 
     idle->assignProperty(m_ui->pushButtonStartSimulation, "icon", playIcon);
     idle->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
-    connect(idle, &QState::entered, [this] {
-            m_activePainter = new GridPainter(m_gridview, this);
-            m_ui->spinBoxGridSizeX->setEnabled(true);
-            m_ui->spinBoxGridSizeY->setEnabled(true);
-        });
-    connect(idle, &QState::exited, [this] {
-            delete m_activePainter;
-            m_activePainter = nullptr;
-            m_ui->spinBoxGridSizeX->setEnabled(false);
-            m_ui->spinBoxGridSizeY->setEnabled(false);
-        });
+    connect(idle, SIGNAL(entered()), this, SLOT(onIdleStateEntered()));
 
     simulationRunning->addTransition(m_ui->pushButtonSimulationStep,
                                      SIGNAL(clicked()), doSingleStep);
+    connect(simmulationRunning, SIGNAL(entered()), this, SLOT(onSimulationStarted()));
 
 
     normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "icon", pauseIcon);

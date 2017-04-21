@@ -15,6 +15,10 @@ public:
     MainWindow(QWidget* = nullptr);
     virtual ~MainWindow();
 
+private slots:
+    void onSimulationStarted();
+    void onIdleStateEntered();
+
 private:
     void setupStateMachine();
 
