@@ -50,7 +50,7 @@ protected:
         while (true) {
             ChangeSet cs = nextGeneration();
 
-            if (cs.died.empty() || cs.spawned.empty())
+            if (cs.died.empty() && cs.spawned.empty())
                 break;
 
             for (const QPoint& cell : cs.spawned)
