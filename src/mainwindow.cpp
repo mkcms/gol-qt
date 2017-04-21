@@ -60,27 +60,26 @@ void MainWindow::setupStateMachine()
     QState *doSingleStep = new QState(simulationRunning);
     QState *normalSimulationMode = new QState(simulationRunning);
 
-    machine->setInitialState(idle);
-
     idle->addTransition(m_ui->pushButtonStartSimulation, SIGNAL(clicked()),
                         normalSimulationMode);
     idle->addTransition(m_ui->pushButtonSimulationStep, SIGNAL(clicked()),
                         doSingleStep);
-
     idle->assignProperty(m_ui->pushButtonStartSimulation, "icon", playIcon);
     idle->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
     connect(idle, SIGNAL(entered()), this, SLOT(onIdleStateEntered()));
 
+
     simulationRunning->addTransition(m_ui->pushButtonSimulationStep,
                                      SIGNAL(clicked()), doSingleStep);
-    connect(simmulationRunning, SIGNAL(entered()), this, SLOT(onSimulationStarted()));
+    simulationRunning->addTransition(m_simulation, SIGNAL(ended()), idle);
+    connect(simulationRunning, SIGNAL(entered()), this, SLOT(onSimulationStarted()));
 
 
     normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "icon", pauseIcon);
     normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "checked", true);
-    connect(normalSimulationMode, SIGNAL(entered()), m_simulation, SLOT(startOrContinue()));
     normalSimulationMode->addTransition(m_ui->pushButtonStartSimulation, SIGNAL(clicked()),
                                         doSingleStep);
+    connect(normalSimulationMode, SIGNAL(entered()), m_simulation, SLOT(startOrContinue()));
 
 
     awaitUserInteraction->assignProperty(m_ui->pushButtonStartSimulation, "icon", playIcon);
@@ -88,11 +87,10 @@ void MainWindow::setupStateMachine()
     awaitUserInteraction->addTransition(m_ui->pushButtonStartSimulation,
                                         SIGNAL(clicked()), normalSimulationMode);
 
-    connect(doSingleStep, &QState::entered,
-        m_simulation, &Simulation::startOrDoSingleStep);
+
     doSingleStep->addTransition(awaitUserInteraction);
+    connect(doSingleStep, SIGNAL(entered()), m_simulation, SLOT(startOrDoSingleStep()));
 
-    simulationRunning->addTransition(m_simulation, SIGNAL(ended()), idle);
-
+    machine->setInitialState(idle);
     machine->start();
 }
