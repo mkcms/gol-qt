@@ -91,14 +91,15 @@ Simulation::Simulation(Grid *grid, QObject *parent)
 
 void Simulation::start(SimulationMode mode)
 {
-    Q_ASSERT(m_worker == nullptr);
-
     if (mode == SimulationMode::Step)
         step();
     else {
         m_timer->setSingleShot(false);
         m_timer->start(0);
     }
+
+    if (m_worker != nullptr)
+        return;
 
     m_worker = new Worker(m_grid);
     connect(m_worker, &Worker::finished, this, [this] {
