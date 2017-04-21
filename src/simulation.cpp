@@ -155,7 +155,7 @@ void Simulation::setDelay(int millis)
 
 void Simulation::simulationStep()
 {
-    if (auto changeset = m_worker->pop())
+    if (auto changeset = m_worker->pop(100))
         changeset->apply(m_grid);
     m_timer->setInterval(m_delay);
 }
