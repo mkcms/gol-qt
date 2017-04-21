@@ -118,17 +118,10 @@ void Simulation::startOrContinue()
     m_timer->start(0);
 }
 
-void Simulation::startInSteppedMode()
+void Simulation::startOrDoSingleStep()
 {
     if (m_worker == nullptr)
         startWorker();
-
-    step();
-}
-
-void Simulation::step()
-{
-    Q_ASSERT(m_worker != nullptr);
 
     m_timer->setSingleShot(true);
     m_timer->start(0);

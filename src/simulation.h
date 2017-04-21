@@ -16,9 +16,8 @@ public:
     bool isRunning() const { return m_worker != nullptr; }
 public slots:
     void startOrContinue();
-    void startInSteppedMode();
+    void startOrDoSingleStep();
     void stop();
-    void step();
     void setDelay(int milis);
 
 signals:
