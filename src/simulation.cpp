@@ -100,23 +100,22 @@ Simulation::Simulation(Grid *grid, QObject *parent)
 
 void Simulation::start(SimulationMode mode)
 {
+    if (m_worker != nullptr) {
+        m_worker = new Worker(m_grid);
+        connect(m_worker, SIGNAL(exhausted()), this, SLOT(stop()));
+        connect(m_worker, SIGNAL(finished()), this, SLOT(waitForAndDeleteFinishedWorker()));
+
+        m_worker->start();
+
+        emit started();
+    }
+
     if (mode == SimulationMode::Step)
         step();
     else {
         m_timer->setSingleShot(false);
         m_timer->start(0);
     }
-
-    if (m_worker != nullptr)
-        return;
-
-    m_worker = new Worker(m_grid);
-    connect(m_worker, SIGNAL(exhausted()), this, SLOT(stop()));
-    connect(m_worker, SIGNAL(finished()), this, SLOT(waitForAndDeleteFinishedWorker()));
-
-    m_worker->start();
-
-    emit started();
 }
 
 void Simulation::step()
