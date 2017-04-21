@@ -92,7 +92,7 @@
           <item>
            <widget class="QPushButton" name="pushButtonStartSimulation">
             <property name="text">
-             <string>Start</string>
+             <string/>
             </property>
             <property name="iconSize">
              <size>
@@ -103,31 +103,40 @@
             <property name="checkable">
              <bool>true</bool>
             </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="pushButtonSimulationStep">
             <property name="text">
-             <string>Step</string>
+             <string/>
             </property>
             <property name="iconSize">
              <size>
               <width>35</width>
               <height>35</height>
              </size>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="pushButtonResetSimulation">
             <property name="text">
-             <string>Reset</string>
+             <string/>
             </property>
             <property name="iconSize">
              <size>
               <width>35</width>
               <height>35</height>
              </size>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
