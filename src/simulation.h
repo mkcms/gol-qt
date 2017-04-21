@@ -18,6 +18,7 @@ class Simulation : public QObject
 public:
     Simulation(Grid *grid, QObject *parent = nullptr);
 
+    bool isRunning() const { return m_worker != nullptr; }
 public slots:
     void start(SimulationMode mode = SimulationMode::Normal);
     void stop();
