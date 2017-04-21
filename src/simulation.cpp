@@ -34,7 +34,7 @@ public:
 
     boost::optional<ChangeSet> pop(unsigned long waitTime = ULONG_MAX);
 
-    void quit()
+    void stop()
     {
         {
             QMutexLocker lock(&m_mutex);
@@ -64,7 +64,7 @@ protected:
                 break;
         }
 
-        quit();
+        stop();
     }
 
 private:
@@ -127,7 +127,7 @@ void Simulation::stop()
 {
     Q_ASSERT(m_worker != nullptr);
 
-    m_worker->quit();
+    m_worker->stop();
     delete m_worker;
     m_worker = nullptr;
     m_timer->stop();
