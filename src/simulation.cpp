@@ -93,9 +93,12 @@ void Simulation::start(SimulationMode mode)
 {
     Q_ASSERT(m_worker == nullptr);
 
-    m_timer->setInterval(100);
-    m_timer->setSingleShot(mode == SimulationMode::Step);
-    m_timer->start();
+    if (mode == SimulationMode::Step)
+        step();
+    else {
+        m_timer->setSingleShot(false);
+        m_timer->start(0);
+    }
 
     m_worker = new Worker(m_grid);
     connect(m_worker, &Worker::finished, this, [this] {
@@ -129,6 +132,13 @@ void Simulation::stop()
     m_timer->stop();
 
     emit ended();
+}
+
+void Simulation::setDelay(int millis)
+{
+    Q_ASSERT(millis >= 0);
+
+    m_timer->setInterval(millis);
 }
 
 void Simulation::simulationStep()

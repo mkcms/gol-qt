@@ -22,6 +22,7 @@ public slots:
     void start(SimulationMode mode = SimulationMode::Normal);
     void stop();
     void step();
+    void setDelay(int milis);
 
 signals:
     void started();
