@@ -99,6 +99,8 @@ void Simulation::start(SimulationMode mode)
 
     m_worker = new Worker(m_grid);
     m_worker->start();
+
+    emit started();
 }
 
 void Simulation::step()
@@ -117,6 +119,8 @@ void Simulation::stop()
     delete m_worker;
     m_worker = nullptr;
     m_timer->stop();
+
+    emit ended();
 }
 
 void Simulation::simulationStep()
