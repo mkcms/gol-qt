@@ -34,6 +34,16 @@ public:
 
     boost::optional<ChangeSet> pop(unsigned long waitTime = ULONG_MAX);
 
+    void quit()
+    {
+        {
+            QMutexLocker lock(&m_mutex);
+            m_quit = true;
+        }
+
+        m_cond.wakeAll();
+    }
+
 protected:
     virtual void run() override
     {
@@ -49,7 +59,12 @@ protected:
                 m_grid->setCellStateAt(cell, false);
 
             push(cs);
+            QMutexLocker lock(&m_mutex);
+            if (m_quit)
+                break;
         }
+
+        quit();
     }
 
 private:
@@ -60,7 +75,7 @@ private:
     QQueue<ChangeSet> m_queue;
     QMutex m_mutex;
     QWaitCondition m_cond;
-
+    bool m_quit;
 };
 
 // include the definitions for Worker.
