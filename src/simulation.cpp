@@ -126,6 +126,7 @@ void Simulation::stop()
     Q_ASSERT(m_worker != nullptr);
 
     m_worker->stop();
+    m_worker->wait();
     delete m_worker;
     m_worker = nullptr;
     m_timer->stop();
