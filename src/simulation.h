@@ -7,11 +7,6 @@ class Grid;
 class QTimer;
 class Worker;
 
-enum class SimulationMode
-{
-    Normal, Step
-};
-
 class Simulation : public QObject
 {
     Q_OBJECT
@@ -20,7 +15,8 @@ public:
 
     bool isRunning() const { return m_worker != nullptr; }
 public slots:
-    void start(SimulationMode mode = SimulationMode::Normal);
+    void startOrContinue();
+    void startInSteppedMode();
     void stop();
     void step();
     void setDelay(int milis);
@@ -34,6 +30,8 @@ private slots:
     void waitForAndDeleteFinishedWorker();
 
 private:
+    void startWorker();
+
     Grid *m_grid;
     QTimer *m_timer;
     Worker *m_worker = nullptr;
