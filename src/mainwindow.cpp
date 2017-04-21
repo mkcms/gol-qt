@@ -56,10 +56,14 @@ void MainWindow::setupStateMachine()
     idle->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
     connect(idle, &QState::entered, [this] {
             m_activePainter = new GridPainter(m_gridview, this);
+            m_ui->spinBoxGridSizeX->setEnabled(true);
+            m_ui->spinBoxGridSizeY->setEnabled(true);
         });
     connect(idle, &QState::exited, [this] {
             delete m_activePainter;
             m_activePainter = nullptr;
+            m_ui->spinBoxGridSizeX->setEnabled(false);
+            m_ui->spinBoxGridSizeY->setEnabled(false);
         });
 
     simulationRunning->addTransition(m_ui->pushButtonSimulationStep,
