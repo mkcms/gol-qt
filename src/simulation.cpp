@@ -75,7 +75,7 @@ private:
     QQueue<ChangeSet> m_queue;
     QMutex m_mutex;
     QWaitCondition m_cond;
-    bool m_quit;
+    bool m_quit = false;
 };
 
 // include the definitions for Worker.
