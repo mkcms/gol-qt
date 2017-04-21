@@ -44,6 +44,7 @@ void MainWindow::setupStateMachine()
     idle->addTransition(m_ui->pushButtonSimulationStep, SIGNAL(clicked()),
                         doSingleStep);
     idle->assignProperty(m_ui->pushButtonStartSimulation, "text", tr("Start"));
+    idle->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
     connect(idle, &QState::entered, [this] {
             m_activePainter = new GridPainter(m_gridview, this);
         });
@@ -51,21 +52,23 @@ void MainWindow::setupStateMachine()
             delete m_activePainter;
             m_activePainter = nullptr;
         });
-    
+
     simulationRunning->addTransition(m_ui->pushButtonSimulationStep,
-				     SIGNAL(clicked()), doSingleStep);
-    
+                                     SIGNAL(clicked()), doSingleStep);
+
     normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "text", tr("Pause"));
+    normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "checked", true);
     connect(normalSimulationMode, SIGNAL(entered()), m_simulation, SLOT(startOrContinue()));
     normalSimulationMode->addTransition(m_ui->pushButtonStartSimulation, SIGNAL(clicked()),
-					doSingleStep);
+                                        doSingleStep);
 
     awaitUserInteraction->assignProperty(m_ui->pushButtonStartSimulation, "text", tr("Continue"));
+    awaitUserInteraction->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
     awaitUserInteraction->addTransition(m_ui->pushButtonStartSimulation,
-				       SIGNAL(clicked()), normalSimulationMode);
+                                        SIGNAL(clicked()), normalSimulationMode);
 
     connect(doSingleStep, &QState::entered,
-	    m_simulation, &Simulation::startOrDoSingleStep);
+        m_simulation, &Simulation::startOrDoSingleStep);
     doSingleStep->addTransition(awaitUserInteraction);
 
     simulationRunning->addTransition(m_simulation, SIGNAL(ended()), idle);
