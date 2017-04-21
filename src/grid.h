@@ -122,6 +122,15 @@ public:
         // data not copied.
         return ret;
     }
+    void copyStateFrom(const Grid *grid)
+    {
+        setSize(grid->rows(), grid->cols());
+        auto oldcells = m_activeCells;
+        for (auto&& cell : oldcells)
+            setCellStateAt(cell, false);
+        for (auto&& cell : *grid)
+            setCellStateAt(cell, true);
+    }
     bool stateAt(QPoint cell) const { return m_grid[cell.x()][cell.y()]; }
     QVariant dataAt(QPoint cell) const { return m_data.value(cell); }
     GridCellNeighbourIterator neighbourIterator(QPoint cell) const
