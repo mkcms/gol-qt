@@ -5,6 +5,7 @@
 
 class Grid;
 class QTimer;
+class Worker;
 
 enum class SimulationMode
 {
@@ -32,6 +33,7 @@ private slots:
 private:
     Grid *m_grid;
     QTimer *m_timer;
+    Worker *m_worker = nullptr;
 };
 
 #endif /* SIMULATION_H_INCLUDED */
