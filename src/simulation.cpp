@@ -112,6 +112,7 @@ void Simulation::start(SimulationMode mode)
 
     m_worker = new Worker(m_grid);
     connect(m_worker, SIGNAL(exhausted()), this, SLOT(stop()));
+    connect(m_worker, SIGNAL(finished()), this, SLOT(waitForAndDeleteFinishedWorker()));
 
     m_worker->start();
 
@@ -139,7 +140,6 @@ void Simulation::stop()
     }
 
     m_worker->wait();
-    delete m_worker;
     m_worker = nullptr;
     m_timer->stop();
 
@@ -157,6 +157,14 @@ void Simulation::simulationStep()
 {
     if (auto changeset = m_worker->pop())
         changeset->apply(m_grid);
+}
+
+void Simulation::waitForAndDeleteFinishedWorker()
+{
+    Worker *worker = qobject_cast<Worker*>(sender());
+
+    worker->wait();
+    delete worker;
 }
 
 boost::optional<ChangeSet> Worker::pop(unsigned long waitTime)

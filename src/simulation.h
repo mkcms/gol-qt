@@ -31,6 +31,7 @@ signals:
 
 private slots:
     void simulationStep();
+    void waitForAndDeleteFinishedWorker();
 
 private:
     Grid *m_grid;
