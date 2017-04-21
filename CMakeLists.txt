@@ -13,8 +13,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 qt5_wrap_ui(QT_UI_HEADERS resources/mainwindow.ui)
+qt5_add_resources(QT_RESOURCES resources/resources.qrc)
 
 file(GLOB SOURCES src/*.cpp)
 
-add_executable(gameoflife ${SOURCES} ${QT_UI_HEADERS})
+add_executable(gameoflife ${SOURCES} ${QT_UI_HEADERS} ${QT_RESOURCES})
 target_link_libraries(gameoflife Qt5::Widgets ${Boost_LIBRARIES})
