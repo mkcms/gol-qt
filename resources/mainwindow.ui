@@ -97,13 +97,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButtonStopSimulation">
-            <property name="text">
-             <string>Stop</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QPushButton" name="pushButtonSimulationStep">
             <property name="text">
              <string>Step</string>
