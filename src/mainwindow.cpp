@@ -26,6 +26,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_ui->pushButtonResetSimulation->setIcon(repeatIcon);
     m_ui->pushButtonSimulationStep->setIcon(stepForwardIcon);
+
+    connect(m_ui->dialSimulationSpeed, &QDial::valueChanged,
+            [this] (int value) {
+                value = m_ui->dialSimulationSpeed->maximum() - value;
+                m_simulation->setDelay(value);
+        });
 }
 
 MainWindow::~MainWindow()
