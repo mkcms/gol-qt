@@ -93,58 +93,57 @@ public:
     Grid(int rows, int cols, QObject *parent = nullptr);
 
 public slots:
-    void appendRows(int n);
-    void eraseRows(int n);
-    void appendCols(int n);
-    void eraseCols(int n);
     void setRowCount(int rows) { setSize(rows, cols()); }
     void setColCount(int cols) { setSize(rows(), cols); }
     void setSize(int rows, int cols);
     void setCellStateAt(QPoint cell, bool state);
     void setCellDataAt(QPoint cell, const QVariant& data)
     {
-        m_data.insert(cell, data);
+        m_data[cell.x()].insert(cell.y(), data);
     }
 
 signals:
-    void cellAdded(QPoint cell);
-    void cellRemoved(QPoint cell);
+    void columnAdded();
+    void columnRemoved();
+    void rowAdded();
+    void rowRemoved();
     void cellStateChanged(QPoint cell, bool state);
-    void sizeChanged(int oldSizeX, int oldSizeY, int newSizeX, int newSizeY);
+    void sizeChanged(int newSizeX, int newSizeY);
 
 public:
     Grid *clone() const
     {
         Grid *ret = new Grid(cols(), rows());
-        ret->m_grid = m_grid;
         ret->m_activeCells = m_activeCells;
         // data not copied.
         return ret;
     }
     void copyStateFrom(const Grid *grid)
     {
-        setSize(grid->rows(), grid->cols());
+        setSize(grid->cols(), grid->rows());
         auto oldcells = m_activeCells;
         for (auto&& cell : oldcells)
             setCellStateAt(cell, false);
         for (auto&& cell : *grid)
             setCellStateAt(cell, true);
     }
-    bool stateAt(QPoint cell) const { return m_grid[cell.x()][cell.y()]; }
-    QVariant dataAt(QPoint cell) const { return m_data.value(cell); }
+    bool stateAt(QPoint cell) const { return m_activeCells.contains(cell); }
+    QVariant dataAt(QPoint cell) const { return m_data[cell.x()][cell.y()]; }
     GridCellNeighbourIterator neighbourIterator(QPoint cell) const
     {
         return { cell, {cols(), rows()} };
     }
-    int cols() const { return m_grid.size(); }
-    int rows() const { return m_grid.empty() ? 0 : m_grid[0].size(); }
+    int cols() const { return m_colCount; }
+    int rows() const { return m_rowCount; }
     QSet<QPoint>::const_iterator begin() const { return m_activeCells.begin(); }
     QSet<QPoint>::const_iterator end() const { return m_activeCells.end(); }
 
 private:
-    QVector<QVector<bool>> m_grid;
-    QHash<QPoint, QVariant> m_data;
     QSet<QPoint> m_activeCells;
+    // Mapping of column->map[row, data].
+    QVector<QHash<int, QVariant>> m_data;
+    int m_colCount = 0;
+    int m_rowCount = 0;
 };
 
 #endif /* GRID_H_INCLUDED */
