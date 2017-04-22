@@ -20,6 +20,8 @@ private slots:
     void onIdleStateEntered();
 
 private:
+    void setupUI();
+    void setupSignalsAndSlots();
     void setupStateMachine();
 
     Ui::MainWindow *m_ui;

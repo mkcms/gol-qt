@@ -10,22 +10,36 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       m_ui(new Ui::MainWindow)
 {
-    m_ui->setupUi(this);
+    setupUI();
     m_grid = new Grid(m_ui->spinBoxGridSizeX->value(),
                       m_ui->spinBoxGridSizeY->value(), this);
     m_gridview = new GridView(m_grid, m_ui->canvas, this);
-    connect(m_ui->spinBoxGridSizeX, SIGNAL(valueChanged(int)),
-            m_grid, SLOT(setColCount(int)));
-    connect(m_ui->spinBoxGridSizeY, SIGNAL(valueChanged(int)),
-            m_grid, SLOT(setRowCount(int)));
     m_simulation = new Simulation(m_grid, this);
-
     setupStateMachine();
+    setupSignalsAndSlots();
+}
+
+MainWindow::~MainWindow()
+{
+    delete m_ui;
+}
+
+void MainWindow::setupUI()
+{
+    m_ui->setupUi(this);
     QIcon repeatIcon(":/repeat.png");
     QIcon stepForwardIcon(":/step-forward.png");
 
     m_ui->pushButtonResetSimulation->setIcon(repeatIcon);
     m_ui->pushButtonSimulationStep->setIcon(stepForwardIcon);
+}
+
+void MainWindow::setupSignalsAndSlots()
+{
+    connect(m_ui->spinBoxGridSizeX, SIGNAL(valueChanged(int)),
+            m_grid, SLOT(setColCount(int)));
+    connect(m_ui->spinBoxGridSizeY, SIGNAL(valueChanged(int)),
+            m_grid, SLOT(setRowCount(int)));
 
     connect(m_ui->dialSimulationSpeed, &QDial::valueChanged,
             [this] (int value) {
@@ -36,11 +50,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_ui->pushButtonResetSimulation, &QPushButton::clicked, [this] {
             m_ui->pushButtonResetSimulation->setEnabled(false);
         });
-}
-
-MainWindow::~MainWindow()
-{
-    delete m_ui;
 }
 
 void MainWindow::onSimulationStarted()
