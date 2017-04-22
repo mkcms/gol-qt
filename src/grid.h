@@ -105,7 +105,6 @@ public slots:
     {
         m_data.insert(cell, data);
     }
-    void toggleCellAt(QPoint cell) { setCellStateAt(cell, !stateAt(cell)); }
 
 signals:
     void cellAdded(QPoint cell);
@@ -139,7 +138,6 @@ public:
     }
     int cols() const { return m_grid.size(); }
     int rows() const { return m_grid.empty() ? 0 : m_grid[0].size(); }
-    const QSet<QPoint>& activeCells() const { return m_activeCells; }
     QSet<QPoint>::const_iterator begin() const { return m_activeCells.begin(); }
     QSet<QPoint>::const_iterator end() const { return m_activeCells.end(); }
 
