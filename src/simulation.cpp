@@ -60,10 +60,8 @@ protected:
         while (true) {
             ChangeSet cs = nextGeneration();
 
-            if (cs.died.empty() && cs.spawned.empty()) {
-                emit exhausted();
+            if (cs.died.empty() && cs.spawned.empty())
                 break;
-            }
 
             cs.apply(m_grid);
 
@@ -72,6 +70,14 @@ protected:
             if (m_quit)
                 break;
         }
+
+        while (true) {
+            QMutexLocker lock(&m_mutex);
+            if (m_quit || m_queue.isEmpty() || !m_cond.wait(&m_mutex))
+                break;
+        }
+
+        emit exhausted();
 
         stop();
     }
