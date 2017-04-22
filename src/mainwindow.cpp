@@ -32,6 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
                 value = m_ui->dialSimulationSpeed->maximum() - value;
                 m_simulation->setDelay(value);
         });
+
+    connect(m_ui->pushButtonResetSimulation, &QPushButton::clicked, [this] {
+            m_ui->pushButtonResetSimulation->setEnabled(false);
+        });
 }
 
 MainWindow::~MainWindow()
@@ -53,7 +57,7 @@ void MainWindow::onIdleStateEntered()
     m_activePainter = new GridPainter(m_gridview, this);
     m_ui->spinBoxGridSizeX->setEnabled(true);
     m_ui->spinBoxGridSizeY->setEnabled(true);
-    m_ui->pushButtonResetSimulation->setEnabled(false);
+    m_ui->pushButtonResetSimulation->setEnabled(m_simulation->preSimulationGrid() != nullptr);
 }
 
 void MainWindow::setupStateMachine()
@@ -101,10 +105,8 @@ void MainWindow::setupStateMachine()
 
 
     resetSimulation->addTransition(idle);
-    connect(resetSimulation, &QState::entered, [this] {
-            m_simulation->stop();
-            m_grid->copyStateFrom(m_simulation->preSimulationGrid());
-        });
+    connect(resetSimulation, SIGNAL(entered()), m_simulation, SLOT(reset()));
+
 
 
     QState *initial = new QState(topLevel);

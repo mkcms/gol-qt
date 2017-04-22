@@ -19,6 +19,7 @@ public slots:
     void startOrContinue();
     void startOrDoSingleStep();
     void stop();
+    void reset();
     void setDelay(int milis);
 
 signals:

@@ -147,6 +147,15 @@ void Simulation::stop()
     emit ended();
 }
 
+void Simulation::reset()
+{
+    if (isRunning())
+        stop();
+
+    m_grid->copyStateFrom(m_preSimulationGrid);
+    m_preSimulationGrid = nullptr;
+}
+
 void Simulation::setDelay(int millis)
 {
     Q_ASSERT(millis >= 0);
