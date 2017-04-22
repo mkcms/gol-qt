@@ -62,24 +62,25 @@ void MainWindow::setupStateMachine()
     QIcon pauseIcon(":/pause.png");
 
     QStateMachine *machine = new QStateMachine(this);
-    QState *idle = new QState(machine);
-    QState *simulationRunning = new QState(machine);
+    QState *topLevel = new QState(machine);
+    QState *idle = new QState(topLevel);
+    QState *simulationRunning = new QState(topLevel);
     QState *awaitUserInteraction = new QState(simulationRunning);
     QState *doSingleStep = new QState(simulationRunning);
     QState *normalSimulationMode = new QState(simulationRunning);
     QState *resetSimulation = new QState(simulationRunning);
 
-    idle->addTransition(m_ui->pushButtonStartSimulation, SIGNAL(clicked()),
-                        normalSimulationMode);
-    idle->addTransition(m_ui->pushButtonSimulationStep, SIGNAL(clicked()),
-                        doSingleStep);
+    topLevel->addTransition(m_ui->pushButtonStartSimulation, SIGNAL(clicked()),
+                            normalSimulationMode);
+    topLevel->addTransition(m_ui->pushButtonSimulationStep, SIGNAL(clicked()),
+                            doSingleStep);
+
+
     idle->assignProperty(m_ui->pushButtonStartSimulation, "icon", playIcon);
     idle->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
     connect(idle, SIGNAL(entered()), this, SLOT(onIdleStateEntered()));
 
 
-    simulationRunning->addTransition(m_ui->pushButtonSimulationStep,
-                                     SIGNAL(clicked()), doSingleStep);
     simulationRunning->addTransition(m_simulation, SIGNAL(ended()), idle);
     simulationRunning->addTransition(m_ui->pushButtonResetSimulation,
                                      SIGNAL(clicked()), resetSimulation);
@@ -88,15 +89,11 @@ void MainWindow::setupStateMachine()
 
     normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "icon", pauseIcon);
     normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "checked", true);
-    normalSimulationMode->addTransition(m_ui->pushButtonStartSimulation, SIGNAL(clicked()),
-                                        doSingleStep);
     connect(normalSimulationMode, SIGNAL(entered()), m_simulation, SLOT(startOrContinue()));
 
 
     awaitUserInteraction->assignProperty(m_ui->pushButtonStartSimulation, "icon", playIcon);
     awaitUserInteraction->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
-    awaitUserInteraction->addTransition(m_ui->pushButtonStartSimulation,
-                                        SIGNAL(clicked()), normalSimulationMode);
 
 
     doSingleStep->addTransition(awaitUserInteraction);
@@ -110,6 +107,9 @@ void MainWindow::setupStateMachine()
         });
 
 
-    machine->setInitialState(idle);
+    QState *initial = new QState(topLevel);
+    topLevel->setInitialState(initial);
+    initial->addTransition(idle);
+    machine->setInitialState(topLevel);
     machine->start();
 }
