@@ -130,7 +130,8 @@ void Simulation::startOrDoSingleStep()
 
 void Simulation::stop()
 {
-    Q_ASSERT(m_worker != nullptr);
+    if (m_worker == nullptr)
+        return;
 
     m_worker->stop();
 
