@@ -78,6 +78,8 @@ void MainWindow::setupStateMachine()
                             normalSimulationMode);
     topLevel->addTransition(m_ui->pushButtonSimulationStep, SIGNAL(clicked()),
                             doSingleStep);
+    topLevel->addTransition(m_ui->pushButtonResetSimulation, SIGNAL(clicked()),
+                            resetSimulation);
 
 
     idle->assignProperty(m_ui->pushButtonStartSimulation, "icon", playIcon);
@@ -86,8 +88,6 @@ void MainWindow::setupStateMachine()
 
 
     simulationRunning->addTransition(m_simulation, SIGNAL(ended()), idle);
-    simulationRunning->addTransition(m_ui->pushButtonResetSimulation,
-                                     SIGNAL(clicked()), resetSimulation);
     connect(simulationRunning, SIGNAL(entered()), this, SLOT(onSimulationStarted()));
 
 
