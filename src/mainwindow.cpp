@@ -50,6 +50,13 @@ void MainWindow::setupSignalsAndSlots()
     connect(m_ui->pushButtonResetSimulation, &QPushButton::clicked, [this] {
             m_ui->pushButtonResetSimulation->setEnabled(false);
         });
+
+    connect(m_grid, &Grid::sizeChanged, [this] (int cols, int rows) {
+            QSignalBlocker block1(m_ui->spinBoxGridSizeX);
+            QSignalBlocker block2(m_ui->spinBoxGridSizeY);
+            m_ui->spinBoxGridSizeX->setValue(cols);
+            m_ui->spinBoxGridSizeY->setValue(rows);
+        });
 }
 
 void MainWindow::onSimulationStarted()
