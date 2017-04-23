@@ -101,6 +101,7 @@ public slots:
     {
         m_data[cell.x()].insert(cell.y(), data);
     }
+    void clear();
 
 signals:
     void columnAdded();

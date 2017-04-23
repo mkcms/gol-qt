@@ -63,3 +63,10 @@ void Grid::setCellStateAt(QPoint cell, bool state)
 
     emit cellStateChanged(cell, state);
 }
+
+void Grid::clear()
+{
+    auto state = m_activeCells;
+    for (const QPoint& cell : state)
+        setCellStateAt(cell, false);
+}

@@ -58,22 +58,22 @@ void MainWindow::setupSignalsAndSlots()
             m_ui->spinBoxGridSizeX->setValue(cols);
             m_ui->spinBoxGridSizeY->setValue(rows);
         });
+
+    connect(m_ui->pushButtonClearGrid, SIGNAL(clicked()), m_grid, SLOT(clear()));
 }
 
 void MainWindow::onSimulationStarted()
 {
     delete m_activePainter;
     m_activePainter = nullptr;
-    m_ui->spinBoxGridSizeX->setEnabled(false);
-    m_ui->spinBoxGridSizeY->setEnabled(false);
+    m_ui->groupBoxGridSizeSettings->setEnabled(false);
     m_ui->pushButtonResetSimulation->setEnabled(true);
 }
 
 void MainWindow::onIdleStateEntered()
 {
     m_activePainter = new GridPainter(m_gridview, this);
-    m_ui->spinBoxGridSizeX->setEnabled(true);
-    m_ui->spinBoxGridSizeY->setEnabled(true);
+    m_ui->groupBoxGridSizeSettings->setEnabled(true);
     m_ui->pushButtonResetSimulation->setEnabled(m_simulation->preSimulationGrid() != nullptr);
 }
 

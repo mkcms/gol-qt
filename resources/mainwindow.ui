@@ -74,6 +74,16 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="pushButtonClearGrid">
+            <property name="statusTip">
+             <string>Clear the grid</string>
+            </property>
+            <property name="text">
+             <string>Clear</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
