@@ -110,6 +110,8 @@ void MainWindow::setupStateMachine()
 
     normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "icon", pauseIcon);
     normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "checked", true);
+    normalSimulationMode->addTransition(m_ui->pushButtonStartSimulation,
+                                        SIGNAL(clicked()), doSingleStep);
     connect(normalSimulationMode, SIGNAL(entered()), m_simulation, SLOT(startOrContinue()));
 
 
