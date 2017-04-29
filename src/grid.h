@@ -8,6 +8,7 @@
 #include <QHash>
 #include <QVariant>
 #include <QVector>
+#include <QDataStream>
 
 inline uint qHash(const QPoint& key)
 {
@@ -139,6 +140,42 @@ public:
     QSet<QPoint>::const_iterator begin() const { return m_activeCells.begin(); }
     QSet<QPoint>::const_iterator end() const { return m_activeCells.end(); }
 
+    friend QDataStream& operator<<(QDataStream& out, const Grid& grid)
+    {
+        if (grid.m_activeCells.isEmpty())
+            return out << 1 << 1 << grid.m_activeCells;
+
+        int maxX = 0, minX = INT_MAX, maxY = 0, minY = INT_MAX;
+        for (const QPoint& pt : grid.m_activeCells) {
+            if (pt.x() > maxX)
+                maxX = pt.x();
+            if (pt.x() < minX)
+                minX = pt.x();
+            if (pt.y() > maxY)
+                maxY = pt.y();
+            if (pt.y() < minY)
+                minY = pt.y();
+        }
+
+        QSet<QPoint> activeCells;
+        for (const QPoint& pt : grid.m_activeCells)
+            activeCells += pt - QPoint{minX, minY};
+
+        int cols = maxX - minX, rows = maxY - minY;
+        out << cols << rows << activeCells;
+        return out;
+    }
+
+    friend QDataStream& operator>>(QDataStream& out, Grid& grid)
+    {
+        int cols, rows;
+        out >> cols >> rows;
+        Grid g{rows, cols};
+        out >> g.m_activeCells;
+        grid.copyStateFrom(&g);
+
+        return out;
+    }
 private:
     QSet<QPoint> m_activeCells;
     // Mapping of column->map[row, data].
@@ -146,5 +183,7 @@ private:
     int m_colCount = 0;
     int m_rowCount = 0;
 };
+
+Q_DECLARE_METATYPE(Grid*)
 
 #endif /* GRID_H_INCLUDED */

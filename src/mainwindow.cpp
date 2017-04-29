@@ -1,10 +1,13 @@
 #include "mainwindow.h"
+#include <QMessageBox>
+#include <QInputDialog>
 #include <QStateMachine>
 #include <QDebug>
 #include "simulation.h"
 #include "gridview.h"
 #include "grid.h"
 #include "gridpainter.h"
+#include "templatemanager.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -15,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent)
                       m_ui->spinBoxGridSizeY->value(), this);
     m_gridview = new GridView(m_grid, m_ui->canvas, this);
     m_simulation = new Simulation(m_grid, this);
+    m_ui->listView->setModel(new TemplateManager);
+    templateManager()->rescanTemplates();
     m_ui->dialSimulationSpeed->setValue(m_ui->dialSimulationSpeed->value());
     setupStateMachine();
     setupSignalsAndSlots();
@@ -55,6 +60,7 @@ void MainWindow::setupSignalsAndSlots()
         });
 
     connect(m_ui->pushButtonClearGrid, SIGNAL(clicked()), m_grid, SLOT(clear()));
+    connect(m_ui->pushButtonSaveGrid, SIGNAL(clicked()), this, SLOT(saveCurrentGrid()));
 }
 
 void MainWindow::onSimulationStarted()
@@ -70,6 +76,24 @@ void MainWindow::onIdleStateEntered()
     m_activePainter = new GridPainter(m_gridview, this);
     m_ui->groupBoxGridSizeSettings->setEnabled(true);
     m_ui->pushButtonResetSimulation->setEnabled(m_simulation->preSimulationGrid() != nullptr);
+}
+
+void MainWindow::saveCurrentGrid()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Save grid as template"),
+                                         tr("Template name:"), QLineEdit::Normal,
+                                         "", &ok);
+    if (ok && !name.isEmpty())
+        if (!templateManager()->addTemplate(name, m_grid))
+            QMessageBox::critical(this,
+                                  tr("Error ocurred"),
+                                  tr("Error ocurred when saving template file"));
+}
+
+void MainWindow::onTemplateItemActivated(const QModelIndex& index)
+{
+    // TODO: implement onTemplateItemActivated()
 }
 
 void MainWindow::setupStateMachine()
@@ -122,4 +146,9 @@ void MainWindow::setupStateMachine()
     initial->addTransition(idle);
     machine->setInitialState(topLevel);
     machine->start();
+}
+
+TemplateManager *MainWindow::templateManager()
+{
+    return static_cast<TemplateManager*>(m_ui->listView->model());
 }
