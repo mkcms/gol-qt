@@ -5,7 +5,7 @@
 #include "grid.h"
 #include "gridview.h"
 
-GridPainter::GridPainter(GridView *view, QObject *parent)
+GridEventFilter::GridEventFilter(GridView *view, QObject *parent)
     : QObject(parent),
       m_view(view)
 {
@@ -13,25 +13,38 @@ GridPainter::GridPainter(GridView *view, QObject *parent)
     view->view()->viewport()->installEventFilter(this);
 }
 
-bool GridPainter::eventFilter(QObject *object, QEvent *event)
+bool GridEventFilter::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::MouseMove && m_mousePressed) {
-        QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-        if (auto cell = m_view->cellAtPos(mouseEvent->pos()))
-            m_view->grid()->setCellStateAt(*cell, m_paintMode);
-    }
+    auto getCellAtPos = [this, event] {
+        return m_view->cellAtPos(static_cast<QMouseEvent*>(event)->pos());
+    };
 
-    if (event->type() == QEvent::MouseButtonPress) {
-        QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-        if (auto cell = m_view->cellAtPos(mouseEvent->pos())) {
-            m_mousePressed = true;
-            m_paintMode = !m_view->grid()->stateAt(*cell);
-            m_view->grid()->setCellStateAt(*cell, m_paintMode);
-        }
+    switch (event->type()) {
+    case QEvent::MouseMove: mouseMoveEvent(event, getCellAtPos()); break;
+    case QEvent::MouseButtonPress: mousePressEvent(event, getCellAtPos()); break;
+    case QEvent::MouseButtonRelease: mouseReleaseEvent(event, getCellAtPos()); break;
+    default: break;
     }
-
-    if (event->type() == QEvent::MouseButtonRelease)
-        m_mousePressed = false;
 
     return QObject::eventFilter(object, event);
+}
+
+void GridPainter::mouseMoveEvent(QEvent *event, boost::optional<QPoint> cell)
+{
+    if (cell && m_mousePressed)
+        view()->grid()->setCellStateAt(*cell, m_paintMode);
+}
+
+void GridPainter::mousePressEvent(QEvent *event, boost::optional<QPoint> cell)
+{
+    if (cell) {
+        m_mousePressed = true;
+        m_paintMode = !view()->grid()->stateAt(*cell);
+        view()->grid()->setCellStateAt(*cell, m_paintMode);
+    }
+}
+
+void GridPainter::mouseReleaseEvent(QEvent *event, boost::optional<QPoint> cell)
+{
+    m_mousePressed = false;
 }
