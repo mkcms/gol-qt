@@ -28,11 +28,6 @@ MainWindow::~MainWindow()
 void MainWindow::setupUI()
 {
     m_ui->setupUi(this);
-    QIcon repeatIcon(":/repeat.png");
-    QIcon stepForwardIcon(":/step-forward.png");
-
-    m_ui->pushButtonResetSimulation->setIcon(repeatIcon);
-    m_ui->pushButtonSimulationStep->setIcon(stepForwardIcon);
 }
 
 void MainWindow::setupSignalsAndSlots()
@@ -79,9 +74,6 @@ void MainWindow::onIdleStateEntered()
 
 void MainWindow::setupStateMachine()
 {
-    QIcon playIcon(":/play.png");
-    QIcon pauseIcon(":/pause.png");
-
     QStateMachine *machine = new QStateMachine(this);
     QState *topLevel = new QState(machine);
     QState *idle = new QState(topLevel);
@@ -99,7 +91,6 @@ void MainWindow::setupStateMachine()
                             resetSimulation);
 
 
-    idle->assignProperty(m_ui->pushButtonStartSimulation, "icon", playIcon);
     idle->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
     connect(idle, SIGNAL(entered()), this, SLOT(onIdleStateEntered()));
 
@@ -108,14 +99,12 @@ void MainWindow::setupStateMachine()
     connect(simulationRunning, SIGNAL(entered()), this, SLOT(onSimulationStarted()));
 
 
-    normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "icon", pauseIcon);
     normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "checked", true);
     normalSimulationMode->addTransition(m_ui->pushButtonStartSimulation,
                                         SIGNAL(clicked()), doSingleStep);
     connect(normalSimulationMode, SIGNAL(entered()), m_simulation, SLOT(startOrContinue()));
 
 
-    awaitUserInteraction->assignProperty(m_ui->pushButtonStartSimulation, "icon", playIcon);
     awaitUserInteraction->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
 
 
