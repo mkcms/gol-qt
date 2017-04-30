@@ -161,7 +161,7 @@ public:
         for (const QPoint& pt : grid.m_activeCells)
             activeCells += pt - QPoint{minX, minY};
 
-        int cols = maxX - minX, rows = maxY - minY;
+        int cols = maxX - minX + 1, rows = maxY - minY + 1;
         out << cols << rows << activeCells;
         return out;
     }
