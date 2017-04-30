@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include <QMouseEvent>
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QStateMachine>
@@ -8,6 +9,36 @@
 #include "grid.h"
 #include "gridpainter.h"
 #include "templatemanager.h"
+
+class CurrentMousePositionIndicator : public QObject
+{
+    Q_OBJECT
+public:
+    CurrentMousePositionIndicator(GridView *view, QMainWindow *parent)
+        : QObject(parent),
+          m_view(view)
+    {
+        m_view->view()->viewport()->installEventFilter(this);
+    }
+
+    virtual bool eventFilter(QObject *object, QEvent *event) override
+    {
+        if (auto* mouseEvent = dynamic_cast<QMouseEvent*>(event)) {
+            QStatusBar *statusBar = qobject_cast<QMainWindow *>(parent())->statusBar();
+            if (auto cell = m_view->cellAtPos(mouseEvent->pos()))
+                statusBar->showMessage(QString("(%1, %2)").arg(cell->x()).arg(cell->y()));
+            else
+                statusBar->clearMessage();
+        }
+
+        return QObject::eventFilter(object, event);
+    }
+
+private:
+    GridView *m_view;
+};
+
+#include "mainwindow.moc"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -23,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_ui->dialSimulationSpeed->setValue(m_ui->dialSimulationSpeed->value());
     setupStateMachine();
     setupSignalsAndSlots();
+    new CurrentMousePositionIndicator(m_gridview, this);
 }
 
 MainWindow::~MainWindow()
