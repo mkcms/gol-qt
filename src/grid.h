@@ -121,7 +121,7 @@ public:
     }
     void copyStateFrom(const Grid *grid)
     {
-        setSize(grid->cols(), grid->rows());
+        setSize(grid->rows(), grid->cols());
         auto oldcells = m_activeCells;
         for (auto&& cell : oldcells)
             setCellStateAt(cell, false);
