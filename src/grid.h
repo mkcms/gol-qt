@@ -8,7 +8,6 @@
 #include <QHash>
 #include <QVariant>
 #include <QVector>
-#include <QDataStream>
 
 inline uint qHash(const QPoint& key)
 {
@@ -140,10 +139,11 @@ public:
     QSet<QPoint>::const_iterator begin() const { return m_activeCells.begin(); }
     QSet<QPoint>::const_iterator end() const { return m_activeCells.end(); }
 
-    friend QDataStream& operator<<(QDataStream& out, const Grid& grid)
+    template <typename Stream>
+    friend Stream& operator<<(Stream& out, const Grid& grid)
     {
         if (grid.m_activeCells.isEmpty())
-            return out << 1 << 1 << grid.m_activeCells;
+            return out << 1 << " " << 1 << "\n" << 0 << "\n";
 
         int maxX = 0, minX = INT_MAX, maxY = 0, minY = INT_MAX;
         for (const QPoint& pt : grid.m_activeCells) {
@@ -162,21 +162,44 @@ public:
             activeCells += pt - QPoint{minX, minY};
 
         int cols = maxX - minX + 1, rows = maxY - minY + 1;
-        out << cols << rows << activeCells;
-        return out;
+        out << cols << " " << rows << "\n";
+        grid.writePoints(activeCells, out);
+        return out << "\n";
     }
 
-    friend QDataStream& operator>>(QDataStream& out, Grid& grid)
+    template <typename Stream>
+    friend Stream& operator>>(Stream& out, Grid& grid)
     {
         int cols, rows;
         out >> cols >> rows;
         Grid g{rows, cols};
-        out >> g.m_activeCells;
+        g.readPoints(out);
         grid.copyStateFrom(&g);
 
         return out;
     }
 private:
+    template <typename Container, typename Stream>
+    void writePoints(const Container& points, Stream& stream) const
+    {
+        stream << m_activeCells.size();
+        for (const QPoint& pt : points)
+            stream << "\n" << pt.x() << " " << pt.y();
+        stream << "\n";
+    }
+
+    template <typename Stream>
+    void readPoints(Stream& stream)
+    {
+        int n;
+        stream >> n;
+        while (n--) {
+            int x, y;
+            stream >> x >> y;
+            m_activeCells += QPoint{x, y};
+        }
+    }
+
     QSet<QPoint> m_activeCells;
     // Mapping of column->map[row, data].
     QVector<QHash<int, QVariant>> m_data;

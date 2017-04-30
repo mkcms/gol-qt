@@ -1,4 +1,5 @@
 #include <QDirIterator>
+#include <QTextStream>
 #include "templatemanager.h"
 #include "grid.h"
 
@@ -10,11 +11,11 @@ QVariant TemplateManager::data(const QModelIndex& index, int role) const
         Grid *ret = nullptr;
         if (!file.open(QIODevice::ReadOnly))
             return QVariant::fromValue(ret);
-        QDataStream in{&file};
+        QTextStream in{&file};
         ret = new Grid(1, 1);
 
         in >> *ret;
-        if (in.status() != QDataStream::Ok) {
+        if (in.status() != QTextStream::Ok) {
             delete ret;
             ret = nullptr;
             return QVariant::fromValue(ret);
@@ -40,9 +41,9 @@ bool TemplateManager::addTemplate(QString name, Grid *grid)
     if (!f.open(QIODevice::WriteOnly))
         return false;
 
-    QDataStream out{&f};
+    QTextStream out{&f};
     out << *grid;
-    if (out.status() == QDataStream::Ok && f.flush()) {
+    if (out.status() == QTextStream::Ok && f.flush()) {
         addItem(f.fileName());
         return true;
     }
