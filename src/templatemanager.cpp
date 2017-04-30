@@ -7,18 +7,20 @@ QVariant TemplateManager::data(const QModelIndex& index, int role) const
     if (role == GridDataRole) {
         QString path = qvariant_cast<QString>(data(index, FilePathDataRole));
         QFile file{path};
+        Grid *ret = nullptr;
         if (!file.open(QIODevice::ReadOnly))
-            return QVariant();
+            return QVariant::fromValue(ret);
         QDataStream in{&file};
-        Grid *grid = new Grid(1, 1);
+        ret = new Grid(1, 1);
 
-        in >> *grid;
+        in >> *ret;
         if (in.status() != QDataStream::Ok) {
-            delete grid;
-            return QVariant();
+            delete ret;
+            ret = nullptr;
+            return QVariant::fromValue(ret);
         }
 
-        return QVariant::fromValue(grid);
+        return QVariant::fromValue(ret);
     }
 
     return QStandardItemModel::data(index, role);
