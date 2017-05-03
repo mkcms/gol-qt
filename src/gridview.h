@@ -30,9 +30,11 @@ private slots:
     void addColumn();
     void removeColumn();
     void removeRow();
-    void handleCellStateChange(QPoint cell, bool state);
     void addCell(QPoint cell);
     void removeCell(QPoint cell);
+
+public slots:
+    void setVisibleCellState(QPoint cell, bool state);
 
 private:
     Grid *m_grid;

@@ -9,6 +9,7 @@ class Grid;
 class GridView;
 class Simulation;
 class TemplateManager;
+class GridEventFilter;
 
 class MainWindow : public QMainWindow
 {
@@ -21,7 +22,11 @@ private slots:
     void onSimulationStarted();
     void onIdleStateEntered();
     void saveCurrentGrid();
-    void onTemplateItemActivated(const QModelIndex& index);
+    void setupNormalPainter();
+    void setupTemplatePainter();
+
+signals:
+    void templatePaintingDone();
 
 private:
     void setupUI();
@@ -32,8 +37,9 @@ private:
     Ui::MainWindow *m_ui;
     Grid *m_grid;
     GridView *m_gridview;
-    QObject *m_activePainter = nullptr;
+    GridEventFilter *m_activePainter = nullptr;
     Simulation *m_simulation;
+    QModelIndex m_lastTemplatePainted;
 };
 
 #endif /* MAINWINDOW_H_INCLUDED */

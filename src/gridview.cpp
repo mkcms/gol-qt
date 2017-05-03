@@ -14,7 +14,7 @@ GridView::GridView(Grid *grid, QGraphicsView *view, QObject *parent)
     connect(grid, SIGNAL(columnAdded()), this, SLOT(addColumn()));
     connect(grid, SIGNAL(columnRemoved()), this, SLOT(removeColumn()));
     connect(grid, SIGNAL(cellStateChanged(QPoint,bool)),
-            this, SLOT(handleCellStateChange(QPoint,bool)));
+            this, SLOT(setVisibleCellState(QPoint,bool)));
 
     view->setScene(new QGraphicsScene(view));
     drawInitialGrid();
@@ -76,7 +76,7 @@ boost::optional<QPoint> GridView::cellAtPos(const QPoint &point)
     return boost::none;
 }
 
-void GridView::handleCellStateChange(QPoint cell, bool state)
+void GridView::setVisibleCellState(QPoint cell, bool state)
 {
     QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(m_grid->dataAt(cell));
 

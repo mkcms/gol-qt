@@ -9,6 +9,7 @@
 #include "grid.h"
 #include "gridpainter.h"
 #include "templatemanager.h"
+#include "templatepainter.h"
 
 class CurrentMousePositionIndicator : public QObject
 {
@@ -93,6 +94,10 @@ void MainWindow::setupSignalsAndSlots()
 
     connect(m_ui->pushButtonClearGrid, SIGNAL(clicked()), m_grid, SLOT(clear()));
     connect(m_ui->pushButtonSaveGrid, SIGNAL(clicked()), this, SLOT(saveCurrentGrid()));
+    connect(this, &MainWindow::templatePaintingDone, [this] {
+            m_lastTemplatePainted = QModelIndex();
+            m_ui->listView->clearSelection();
+        });
 }
 
 void MainWindow::onSimulationStarted()
@@ -101,13 +106,46 @@ void MainWindow::onSimulationStarted()
     m_activePainter = nullptr;
     m_ui->groupBoxGridSizeSettings->setEnabled(false);
     m_ui->pushButtonResetSimulation->setEnabled(true);
+    m_ui->groupBoxTemplates->setEnabled(false);
 }
 
 void MainWindow::onIdleStateEntered()
 {
-    m_activePainter = new GridPainter(m_gridview, this);
     m_ui->groupBoxGridSizeSettings->setEnabled(true);
     m_ui->pushButtonResetSimulation->setEnabled(m_simulation->preSimulationGrid() != nullptr);
+    m_ui->groupBoxTemplates->setEnabled(true);
+}
+
+void MainWindow::setupNormalPainter()
+{
+    delete m_activePainter;
+    m_activePainter = new GridPainter(m_gridview, this);
+}
+
+void MainWindow::setupTemplatePainter()
+{
+    QModelIndex index = m_ui->listView->currentIndex();
+    if (!index.isValid() || index == m_lastTemplatePainted) {
+        emit templatePaintingDone();
+        return;
+    }
+
+    delete m_activePainter;
+    Grid *grid = qvariant_cast<Grid*>(templateManager()->data(index, GridDataRole));
+    if (!grid) {
+        QMessageBox::critical(this,
+                              tr("Error ocurred"),
+                              tr("Error ocurred when loading template file"));
+        m_activePainter = nullptr;
+        emit templatePaintingDone();
+        return;
+    }
+    m_activePainter = new GridTemplatePainter(m_gridview, grid, this);
+    grid->setParent(m_activePainter);
+    connect(m_activePainter, SIGNAL(done()), this, SIGNAL(templatePaintingDone()));
+    m_lastTemplatePainted = index;
+    m_ui->canvas->setFocus(Qt::OtherFocusReason);
+    statusBar()->showMessage(tr("Press [ESC] to quit insertion mode."));
 }
 
 void MainWindow::saveCurrentGrid()
@@ -123,16 +161,13 @@ void MainWindow::saveCurrentGrid()
                                   tr("Error ocurred when saving template file"));
 }
 
-void MainWindow::onTemplateItemActivated(const QModelIndex& index)
-{
-    // TODO: implement onTemplateItemActivated()
-}
-
 void MainWindow::setupStateMachine()
 {
     QStateMachine *machine = new QStateMachine(this);
     QState *topLevel = new QState(machine);
     QState *idle = new QState(topLevel);
+    QState *paintingNormal = new QState(idle);
+    QState *paintingTemplate = new QState(idle);
     QState *simulationRunning = new QState(topLevel);
     QState *awaitUserInteraction = new QState(simulationRunning);
     QState *doSingleStep = new QState(simulationRunning);
@@ -146,10 +181,15 @@ void MainWindow::setupStateMachine()
     topLevel->addTransition(m_ui->pushButtonResetSimulation, SIGNAL(clicked()),
                             resetSimulation);
 
-
+    idle->setInitialState(paintingNormal);
     idle->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
     connect(idle, SIGNAL(entered()), this, SLOT(onIdleStateEntered()));
 
+    connect(paintingNormal, SIGNAL(entered()), this, SLOT(setupNormalPainter()));
+    connect(paintingTemplate, SIGNAL(entered()), this, SLOT(setupTemplatePainter()));
+    paintingTemplate->addTransition(this, SIGNAL(templatePaintingDone()), paintingNormal);
+    idle->addTransition(m_ui->listView, SIGNAL(clicked(const QModelIndex&)), paintingTemplate);
+    idle->addTransition(m_ui->listView, SIGNAL(activated(const QModelIndex&)), paintingTemplate);
 
     simulationRunning->addTransition(m_simulation, SIGNAL(ended()), idle);
     connect(simulationRunning, SIGNAL(entered()), this, SLOT(onSimulationStarted()));
