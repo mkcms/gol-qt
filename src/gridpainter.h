@@ -6,6 +6,7 @@
 #include <boost/optional.hpp>
 
 class GridView;
+class QKeyEvent;
 
 class GridEventFilter : public QObject
 {
@@ -20,6 +21,7 @@ protected:
     virtual void mouseMoveEvent(QEvent *event, boost::optional<QPoint> item) { }
     virtual void mousePressEvent(QEvent *event, boost::optional<QPoint> item) { }
     virtual void mouseReleaseEvent(QEvent *event, boost::optional<QPoint> item) { }
+    virtual void keyPressEvent(QKeyEvent *event) { }
 
 private:
     GridView *m_view;
