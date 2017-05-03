@@ -28,7 +28,7 @@ public slots:
 
 private:
     void addItem(const QString& path);
-    void calculateIconForItem(const QString& path);
+    void createImageForItem(const QModelIndex& path);
 };
 
 #endif /* TEMPLATEMANAGER_H_INCLUDED */
