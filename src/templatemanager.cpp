@@ -3,14 +3,14 @@
 #include "templatemanager.h"
 #include "grid.h"
 
-QVariant TemplateManager::data(const QModelIndex& index, int role) const
+namespace
 {
-    if (role == GridDataRole) {
-        QString path = qvariant_cast<QString>(data(index, FilePathDataRole));
+    Grid *loadGridFromFile(const QString &path)
+    {
         QFile file{path};
         Grid *ret = nullptr;
         if (!file.open(QIODevice::ReadOnly))
-            return QVariant::fromValue(ret);
+            return ret;
         QTextStream in{&file};
         ret = new Grid(1, 1);
 
@@ -18,12 +18,19 @@ QVariant TemplateManager::data(const QModelIndex& index, int role) const
         if (in.status() != QTextStream::Ok) {
             delete ret;
             ret = nullptr;
-            return QVariant::fromValue(ret);
+            return ret;
         }
 
-        return QVariant::fromValue(ret);
+        return ret;
     }
+}
 
+QVariant TemplateManager::data(const QModelIndex& index, int role) const
+{
+    if (role == GridDataRole) {
+        QString path = qvariant_cast<QString>(data(index, FilePathDataRole));
+        return QVariant::fromValue(loadGridFromFile(path));
+    }
     return QStandardItemModel::data(index, role);
 }
 
