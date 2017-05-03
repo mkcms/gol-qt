@@ -217,12 +217,19 @@
      </widget>
     </item>
     <item>
-     <widget class="QGraphicsView" name="canvas"/>
+     <widget class="GraphicsView" name="canvas"/>
     </item>
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header>graphicsview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>
