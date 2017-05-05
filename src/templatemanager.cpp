@@ -89,14 +89,15 @@ namespace
 {
     QPixmap pixmapForGrid(Grid *grid)
     {
-        constexpr int RectSize = 7;
-        QPixmap ret{grid->cols() * RectSize, grid->rows() * RectSize};
-        ret.fill(Qt::transparent);
+        constexpr int RectSize = 7, borderOffset = 5;
+        QPixmap ret{grid->cols() * RectSize + borderOffset * 2,
+                    grid->rows() * RectSize + borderOffset * 2};
+        ret.fill(Qt::white);
         QPainter painter{&ret};
 
         for (const QPoint& cell : *grid) {
-            painter.fillRect(cell.x() * RectSize,
-                             cell.y() * RectSize,
+            painter.fillRect(cell.x() * RectSize + borderOffset,
+                             cell.y() * RectSize + borderOffset,
                              RectSize, RectSize, Qt::black);
         }
 
