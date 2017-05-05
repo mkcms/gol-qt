@@ -8,6 +8,7 @@
 #include <QHash>
 #include <QVariant>
 #include <QVector>
+#include <QTextStream>
 
 inline uint qHash(const QPoint& key)
 {
@@ -139,8 +140,7 @@ public:
     QSet<QPoint>::const_iterator begin() const { return m_activeCells.begin(); }
     QSet<QPoint>::const_iterator end() const { return m_activeCells.end(); }
 
-    template <typename Stream>
-    friend Stream& operator<<(Stream& out, const Grid& grid)
+    friend QTextStream& operator<<(QTextStream& out, const Grid& grid)
     {
         if (grid.m_activeCells.isEmpty())
             return out << 1 << " " << 1 << "\n" << 0 << "\n";
@@ -167,11 +167,13 @@ public:
         return out << "\n";
     }
 
-    template <typename Stream>
-    friend Stream& operator>>(Stream& out, Grid& grid)
+    friend QTextStream& operator>>(QTextStream& out, Grid& grid)
     {
         int cols, rows;
         out >> cols >> rows;
+        if (out.status() != QTextStream::Ok
+            || cols <= 0 || rows <= 0)
+            return out;
         Grid g{rows, cols};
         g.readPoints(out);
         grid.copyStateFrom(&g);
@@ -179,8 +181,8 @@ public:
         return out;
     }
 private:
-    template <typename Container, typename Stream>
-    void writePoints(const Container& points, Stream& stream) const
+    template <typename Container>
+    void writePoints(const Container& points, QTextStream& stream) const
     {
         stream << m_activeCells.size();
         for (const QPoint& pt : points)
@@ -188,12 +190,13 @@ private:
         stream << "\n";
     }
 
-    template <typename Stream>
-    void readPoints(Stream& stream)
+    void readPoints(QTextStream& stream)
     {
         int n;
         stream >> n;
         while (n--) {
+            if (stream.status() != QTextStream::Ok)
+                break;
             int x, y;
             stream >> x >> y;
             m_activeCells += QPoint{x, y};
