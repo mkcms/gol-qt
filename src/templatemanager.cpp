@@ -39,6 +39,7 @@ QVariant TemplateManager::data(const QModelIndex& index, int role) const
 
 void TemplateManager::rescanTemplates()
 {
+    clear();
     QDirIterator iterator{templatesDirectory().path(), QDir::Files | QDir::Readable};
 
     while (iterator.hasNext())

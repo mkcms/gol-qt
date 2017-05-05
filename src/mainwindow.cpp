@@ -137,6 +137,7 @@ void MainWindow::setupTemplatePainter()
                               tr("Error ocurred"),
                               tr("Error ocurred when loading template file"));
         m_activePainter = nullptr;
+        templateManager()->rescanTemplates();
         emit templatePaintingDone();
         return;
     }
