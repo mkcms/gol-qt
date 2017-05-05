@@ -18,7 +18,7 @@ namespace
         ret = new Grid(1, 1);
 
         in >> *ret;
-        if (in.status() != QTextStream::Ok) {
+        if (!ret->isValid()) {
             delete ret;
             ret = nullptr;
             return ret;

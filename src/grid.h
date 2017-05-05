@@ -93,6 +93,7 @@ class Grid : public QObject
 public:
     Grid(int rows, int cols, QObject *parent = nullptr);
 
+    bool isValid() const { return m_rowCount > 0 && m_colCount > 0; }
 public slots:
     void setRowCount(int rows) { setSize(rows, cols()); }
     void setColCount(int cols) { setSize(rows(), cols); }
@@ -122,6 +123,8 @@ public:
     }
     void copyStateFrom(const Grid *grid)
     {
+        if (!grid->isValid())
+            return;
         setSize(grid->rows(), grid->cols());
         auto oldcells = m_activeCells;
         for (auto&& cell : oldcells)
@@ -201,6 +204,8 @@ private:
             stream >> x >> y;
             m_activeCells += QPoint{x, y};
         }
+        if (stream.status() != QTextStream::Ok)
+            m_rowCount = -1;
     }
 
     QSet<QPoint> m_activeCells;
