@@ -73,10 +73,16 @@ void TemplateManager::addItem(const QString& path)
 {
     QStandardItem *item = nullptr;
     QString fname = QFileInfo(path).fileName();
-    auto existing = findItems(fname);
-    if (!existing.isEmpty())
-        item = existing.front();
-    else {
+
+    for (int i = 0; i < rowCount(); ++i) {
+        QStandardItem *it = this->item(i);
+        if (qvariant_cast<QString>(it->data(FilePathDataRole)) == path) {
+            item = it;
+            break;
+        }
+    }
+
+    if (!item) {
         item = new QStandardItem(fname);
         appendRow(item);
         item->setEditable(false);
