@@ -117,7 +117,7 @@ signals:
 public:
     Grid *clone() const
     {
-        Grid *ret = new Grid(cols(), rows());
+        Grid *ret = new Grid(rows(), cols());
         ret->m_activeCells = m_activeCells;
         // data not copied.
         return ret;
