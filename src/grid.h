@@ -29,7 +29,7 @@ namespace std {
 class GridCellNeighbourIterator
 {
 public:
-    static constexpr QPoint offsets[] =
+    static constexpr int offsets[][2] =
     {
         {-1, 0}, {0, -1}, {1, 0},
         {1, 0}, {0, 1}, {0, 1},
@@ -49,7 +49,8 @@ public:
     {
         ++m_curOffset;
         if (m_curOffset < 8) {
-            m_curCell += offsets[m_curOffset];
+            m_curCell.rx() += offsets[m_curOffset][0];
+            m_curCell.ry() += offsets[m_curOffset][1];
             if (!valid())
                 ++*this;
         }
