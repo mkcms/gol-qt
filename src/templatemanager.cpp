@@ -53,7 +53,8 @@ bool TemplateManager::addTemplate(QString name, Grid *grid)
 
     QTextStream out{&f};
     out << *grid;
-    if (out.status() == QTextStream::Ok && f.flush()) {
+    f.close();
+    if (out.status() == QTextStream::Ok) {
         addItem(f.fileName());
         return true;
     }
