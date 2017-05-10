@@ -8,6 +8,14 @@ class GraphicsView : public QGraphicsView
     Q_OBJECT
 public:
     GraphicsView(QWidget *parent = nullptr);
+
+    qreal zoomFactor() const { return transform().m22(); }
+
+signals:
+    void zoomFactorChanged(qreal factor);
+
+protected:
+    virtual void wheelEvent(QWheelEvent *event) override;
 };
 
 
