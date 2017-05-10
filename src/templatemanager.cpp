@@ -97,16 +97,24 @@ namespace
 {
     QPixmap pixmapForGrid(Grid *grid)
     {
-        constexpr int RectSize = 7, borderOffset = 5;
-        QPixmap ret{grid->cols() * RectSize + borderOffset * 2,
-                    grid->rows() * RectSize + borderOffset * 2};
+        double rectSize = 7, borderOffset = 5;
+        QSizeF size{grid->cols() * rectSize + borderOffset * 2,
+                grid->rows() * rectSize + borderOffset * 2};
+        if (size.width() > 500 || size.height() > 500) {
+            double ratioRS = rectSize / size.width();
+            double ratioBO = borderOffset / size.width();
+            size.scale(500, 500, Qt::KeepAspectRatio);
+            rectSize = ratioRS * size.width();
+            borderOffset = ratioBO * size.width();
+        }
+        QPixmap ret{size.toSize()};
         ret.fill(Qt::white);
         QPainter painter{&ret};
 
         for (const QPoint& cell : *grid) {
-            painter.fillRect(cell.x() * RectSize + borderOffset,
-                             cell.y() * RectSize + borderOffset,
-                             RectSize, RectSize, Qt::black);
+            painter.fillRect(cell.x() * rectSize + borderOffset,
+                             cell.y() * rectSize + borderOffset,
+                             rectSize, rectSize, Qt::black);
         }
 
         return ret;
