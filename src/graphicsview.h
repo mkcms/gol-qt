@@ -11,6 +11,9 @@ public:
 
     qreal zoomFactor() const { return transform().m22(); }
 
+public slots:
+    void setZoomFactor(qreal factor);
+
 signals:
     void zoomFactorChanged(qreal factor);
 

@@ -100,20 +100,35 @@ void MainWindow::setupSignalsAndSlots()
             m_lastTemplatePainted = QModelIndex();
             m_ui->listView->clearSelection();
         });
+
+    connect(m_ui->spinBoxZoomAmount,
+            static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            [this] (double value) {
+                m_ui->canvas->setZoomFactor(value / 100.0);
+        });
+
+    connect(m_ui->canvas, &GraphicsView::zoomFactorChanged, [this] (qreal factor) {
+            QSignalBlocker block1(m_ui->spinBoxZoomAmount);
+            m_ui->spinBoxZoomAmount->setValue(factor * 100);
+        });
 }
 
 void MainWindow::onSimulationStarted()
 {
     delete m_activePainter;
     m_activePainter = nullptr;
-    m_ui->groupBoxGridSizeSettings->setEnabled(false);
+    m_ui->spinBoxGridSizeX->setEnabled(false);
+    m_ui->spinBoxGridSizeY->setEnabled(false);
+    m_ui->pushButtonClearGrid->setEnabled(false);
     m_ui->pushButtonResetSimulation->setEnabled(true);
     m_ui->groupBoxTemplates->setEnabled(false);
 }
 
 void MainWindow::onIdleStateEntered()
 {
-    m_ui->groupBoxGridSizeSettings->setEnabled(true);
+    m_ui->spinBoxGridSizeX->setEnabled(true);
+    m_ui->spinBoxGridSizeY->setEnabled(true);
+    m_ui->pushButtonClearGrid->setEnabled(true);
     m_ui->pushButtonResetSimulation->setEnabled(m_simulation->preSimulationGrid() != nullptr);
     m_ui->groupBoxTemplates->setEnabled(true);
 }
