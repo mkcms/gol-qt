@@ -90,6 +90,8 @@ void MainWindow::setupSignalsAndSlots()
             QSignalBlocker block2(m_ui->spinBoxGridSizeY);
             m_ui->spinBoxGridSizeX->setValue(cols);
             m_ui->spinBoxGridSizeY->setValue(rows);
+
+            m_ui->canvas->setSceneRect(m_ui->canvas->scene()->itemsBoundingRect());
         });
 
     connect(m_ui->pushButtonClearGrid, SIGNAL(clicked()), m_grid, SLOT(clear()));
