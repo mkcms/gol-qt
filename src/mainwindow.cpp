@@ -111,6 +111,8 @@ void MainWindow::setupSignalsAndSlots()
             QSignalBlocker block1(m_ui->spinBoxZoomAmount);
             m_ui->spinBoxZoomAmount->setValue(factor * 100);
         });
+
+    connect(this, SIGNAL(destroyed()), m_simulation, SLOT(stop()));
 }
 
 void MainWindow::onSimulationStarted()
