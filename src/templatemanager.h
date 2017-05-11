@@ -16,7 +16,7 @@ class TemplateManager : public QStandardItemModel
 {
     Q_OBJECT
 public:
-    using QStandardItemModel::QStandardItemModel;
+    TemplateManager(QObject *parent = nullptr);
 
     static QDir templatesDirectory();
 

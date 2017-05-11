@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QTextStream>
 #include <QPixmap>
+#include <QFileSystemWatcher>
 #include "templatemanager.h"
 #include "grid.h"
 
@@ -26,6 +27,14 @@ namespace
 
         return ret;
     }
+}
+
+TemplateManager::TemplateManager(QObject *parent)
+    : QStandardItemModel(parent)
+{
+    QFileSystemWatcher *watcher = new QFileSystemWatcher(this);
+    watcher->addPath(templatesDirectory().absolutePath());
+    connect(watcher, SIGNAL(directoryChanged(const QString&)), this, SLOT(rescanTemplates()));
 }
 
 QVariant TemplateManager::data(const QModelIndex& index, int role) const
