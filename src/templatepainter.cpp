@@ -31,7 +31,8 @@ void GridTemplatePainter::mouseMoveEvent(QEvent *event, boost::optional<QPoint> 
 
 void GridTemplatePainter::mousePressEvent(QEvent *event, boost::optional<QPoint> item)
 {
-    if (isDone() || !item)
+    QMouseEvent *mevent = static_cast<QMouseEvent*>(event);
+    if (isDone() || !item || mevent->buttons() != Qt::LeftButton)
         return;
 
     maybeHidePreview(*item);

@@ -45,7 +45,8 @@ void GridPainter::mouseMoveEvent(QEvent *event, boost::optional<QPoint> cell)
 
 void GridPainter::mousePressEvent(QEvent *event, boost::optional<QPoint> cell)
 {
-    if (cell) {
+    QMouseEvent *mevent = static_cast<QMouseEvent*>(event);
+    if (mevent->buttons() == Qt::LeftButton && cell) {
         m_mousePressed = true;
         m_paintMode = !view()->grid()->stateAt(*cell);
         view()->grid()->setCellStateAt(*cell, m_paintMode);
