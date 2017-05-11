@@ -26,6 +26,20 @@ namespace std {
     };
 }
 
+namespace {
+    int readUnsignedInt(QTextStream& stream)
+    {
+        int ret;
+        QString str;
+        stream >> str;
+        bool ok;
+        ret = str.toInt(&ok);
+        if (!ok)
+            stream.setStatus(QTextStream::ReadCorruptData);
+        return ret;
+    }
+}
+
 class GridCellNeighbourIterator
 {
 public:
@@ -173,15 +187,26 @@ public:
 
     friend QTextStream& operator>>(QTextStream& out, Grid& grid)
     {
+        grid.clear();
+
         int cols, rows;
-        out >> cols >> rows;
+        cols = readUnsignedInt(out);
+        rows = readUnsignedInt(out);
+        grid.m_rowCount = rows;
+        grid.m_colCount = cols;
         if (out.status() != QTextStream::Ok
-            || cols <= 0 || rows <= 0)
+            || cols <= 0 || rows <= 0) {
+            grid.m_rowCount = -1;
             return out;
+        }
         Grid g{rows, cols};
         g.readPoints(out);
-        grid.copyStateFrom(&g);
+        if (!g.isValid()) {
+            grid.m_rowCount = -1;
+            return out;
+        }
 
+        grid.copyStateFrom(&g);
         return out;
     }
 private:
@@ -196,16 +221,22 @@ private:
 
     void readPoints(QTextStream& stream)
     {
-        int n;
-        stream >> n;
-        while (n--) {
-            if (stream.status() != QTextStream::Ok)
+        bool valid = true;
+        int n = readUnsignedInt(stream);
+        if (n <= 0)
+            valid = false;
+        while (n-- > 0 && stream.status() == QTextStream::Ok) {
+            int x = readUnsignedInt(stream);
+            int y = readUnsignedInt(stream);
+            if (stream.status() != QTextStream::Ok
+                || x < 0 || y < 0 || x >= m_colCount || y >= m_rowCount) {
+                valid = false;
                 break;
-            int x, y;
-            stream >> x >> y;
+            }
             m_activeCells += QPoint{x, y};
         }
-        if (stream.status() != QTextStream::Ok)
+
+        if (!valid || stream.status() != QTextStream::Ok)
             m_rowCount = -1;
     }
 
