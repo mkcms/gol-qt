@@ -1,12 +1,6 @@
 #include <QWheelEvent>
 #include "graphicsview.h"
 
-GraphicsView::GraphicsView(QWidget *parent)
-    : QGraphicsView(parent)
-{
-
-}
-
 void GraphicsView::setZoomFactor(qreal factor)
 {
     if (factor < 0.1 || factor > 2.05)

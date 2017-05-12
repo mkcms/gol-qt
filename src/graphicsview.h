@@ -7,7 +7,7 @@ class GraphicsView : public QGraphicsView
 {
     Q_OBJECT
 public:
-    GraphicsView(QWidget *parent = nullptr);
+    using QGraphicsView::QGraphicsView;
 
     qreal zoomFactor() const { return transform().m22(); }
 
