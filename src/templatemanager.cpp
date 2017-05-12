@@ -53,6 +53,8 @@ void TemplateManager::rescanTemplates()
 
     while (iterator.hasNext())
         addItem(iterator.next());
+
+    sort(0);
 }
 
 bool TemplateManager::addTemplate(QString name, Grid *grid)
