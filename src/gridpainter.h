@@ -39,7 +39,7 @@ public:
 
 
 private:
-    bool m_mousePressed = false;
+    boost::optional<QPoint> m_paintPoint;
     bool m_paintMode;
 };
 
