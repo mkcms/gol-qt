@@ -4,7 +4,7 @@
 #include "gridview.h"
 
 GridTemplatePainter::GridTemplatePainter(GridView *view, Grid *template_, QObject *parent)
-    : GridEventFilter(view, parent),
+    : GridMouseTool(view, parent),
       m_template(template_)
 {
     auto deinitialize = [this] { m_lastInsertMode = boost::none; };

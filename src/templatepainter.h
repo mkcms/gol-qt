@@ -5,7 +5,7 @@
 
 class Grid;
 
-class GridTemplatePainter : public GridEventFilter
+class GridTemplatePainter : public GridMouseTool
 {
     Q_OBJECT
 public:

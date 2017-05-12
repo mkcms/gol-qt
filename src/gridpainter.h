@@ -8,11 +8,11 @@
 class GridView;
 class QKeyEvent;
 
-class GridEventFilter : public QObject
+class GridMouseTool : public QObject
 {
     Q_OBJECT
 public:
-    GridEventFilter(GridView *view, QObject *parent = nullptr);
+    GridMouseTool(GridView *view, QObject *parent = nullptr);
 
     virtual bool eventFilter(QObject *object, QEvent *event) override;
     GridView *view() { return m_view; }
@@ -27,11 +27,11 @@ private:
     GridView *m_view;
 };
 
-class GridPainter : public GridEventFilter
+class GridPainter : public GridMouseTool
 {
     Q_OBJECT
 public:
-    using GridEventFilter::GridEventFilter;
+    using GridMouseTool::GridMouseTool;
 
     virtual void mouseMoveEvent(QEvent *event, boost::optional<QPoint> item) override;
     virtual void mousePressEvent(QEvent *event, boost::optional<QPoint> item) override;

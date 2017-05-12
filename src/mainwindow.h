@@ -9,7 +9,7 @@ class Grid;
 class GridView;
 class Simulation;
 class TemplateManager;
-class GridEventFilter;
+class GridMouseTool;
 
 class MainWindow : public QMainWindow
 {
@@ -37,7 +37,7 @@ private:
     Ui::MainWindow *m_ui;
     Grid *m_grid;
     GridView *m_gridview;
-    GridEventFilter *m_activePainter = nullptr;
+    GridMouseTool *m_activePainter = nullptr;
     Simulation *m_simulation;
     QModelIndex m_lastTemplatePainted;
     TemplateManager *m_templateManager;

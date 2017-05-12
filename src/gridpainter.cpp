@@ -6,7 +6,7 @@
 #include "grid.h"
 #include "gridview.h"
 
-GridEventFilter::GridEventFilter(GridView *view, QObject *parent)
+GridMouseTool::GridMouseTool(GridView *view, QObject *parent)
     : QObject(parent),
       m_view(view)
 {
@@ -15,7 +15,7 @@ GridEventFilter::GridEventFilter(GridView *view, QObject *parent)
     view->view()->installEventFilter(this);
  }
 
-bool GridEventFilter::eventFilter(QObject *object, QEvent *event)
+bool GridMouseTool::eventFilter(QObject *object, QEvent *event)
 {
     if (object == m_view->view()) {
         if (event->type() == QEvent::KeyPress)
