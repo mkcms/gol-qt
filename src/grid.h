@@ -1,62 +1,42 @@
 #ifndef GRID_H_INCLUDED
 #define GRID_H_INCLUDED
 
-#include <QObject>
 #include <functional>
+#include <QObject>
 #include <QSet>
 #include <QPoint>
 #include <QHash>
 #include <QVariant>
 #include <QVector>
 #include <QTextStream>
+#include <QtGlobal>
+#include <QSize>
 #include "gridcellneighbouriterator.h"
 
-inline uint qHash(const QPoint& key)
-{
-    return qHash(QPair<int, int>(key.x(), key.y()));
-}
+uint qHash(const QPoint& key);
 
 namespace std {
     template <>
     struct hash<QPoint>
     {
-        size_t operator()(const QPoint& point) const
-        {
-            return hash<int>()(point.x()) ^ hash<int>()(point.y());
-        }
+        size_t operator()(const QPoint& point) const;
     };
-}
-
-namespace {
-    int readUnsignedInt(QTextStream& stream)
-    {
-        int ret;
-        QString str;
-        stream >> str;
-        bool ok;
-        ret = str.toInt(&ok);
-        if (!ok)
-            stream.setStatus(QTextStream::ReadCorruptData);
-        return ret;
-    }
 }
 
 class Grid : public QObject
 {
     Q_OBJECT
 public:
-    Grid(int rows, int cols, QObject *parent = nullptr);
+    Grid(const QSize& size, QObject *parent = nullptr);
+    virtual ~Grid() { invalidate(); }
 
-    bool isValid() const { return m_rowCount > 0 && m_colCount > 0; }
 public slots:
     void setRowCount(int rows) { setSize(rows, cols()); }
     void setColCount(int cols) { setSize(rows(), cols); }
-    void setSize(int rows, int cols);
-    void setCellStateAt(QPoint cell, bool state);
-    void setCellDataAt(QPoint cell, const QVariant& data)
-    {
-        m_data[cell.x()].insert(cell.y(), data);
-    }
+    void setSize(int rows, int cols) { setSize({cols, rows}); }
+    void setSize(const QSize& size);
+    void setCellStateAt(const QPoint& cell, bool state);
+    void setCellDataAt(const QPoint& cell, const QVariant& data);
     void clear();
 
 signals:
@@ -64,126 +44,35 @@ signals:
     void columnRemoved();
     void rowAdded();
     void rowRemoved();
-    void cellStateChanged(QPoint cell, bool state);
-    void sizeChanged(int newSizeX, int newSizeY);
+    void cellStateChanged(const QPoint& cell, bool state);
+    void sizeChanged(const QSize& newSize);
 
 public:
-    Grid *clone() const
-    {
-        Grid *ret = new Grid(rows(), cols());
-        ret->m_activeCells = m_activeCells;
-        // data not copied.
-        return ret;
-    }
-    void copyStateFrom(const Grid *grid)
-    {
-        if (!grid->isValid())
-            return;
-        setSize(grid->rows(), grid->cols());
-        auto oldcells = m_activeCells;
-        for (auto&& cell : oldcells)
-            setCellStateAt(cell, false);
-        for (auto&& cell : *grid)
-            setCellStateAt(cell, true);
-    }
-    bool stateAt(QPoint cell) const { return m_activeCells.contains(cell); }
-    QVariant dataAt(QPoint cell) const { return m_data[cell.x()][cell.y()]; }
-    GridCellNeighbourIterator neighbourIterator(QPoint cell) const
+    bool isValid() const { return m_size.isValid() && rows() * cols() != 0; }
+    bool stateAt(const QPoint& cell) const { return m_activeCells.contains(cell); }
+    QVariant dataAt(const QPoint& cell) const { return m_data[cell.x()][cell.y()]; }
+    int cols() const { return m_size.width(); }
+    int rows() const { return m_size.height(); }
+    QSet<QPoint>::const_iterator begin() const { return m_activeCells.begin(); }
+    QSet<QPoint>::const_iterator end() const { return m_activeCells.end(); }
+    GridCellNeighbourIterator neighbourIterator(const QPoint& cell) const
     {
         return { cell, {cols(), rows()} };
     }
-    int cols() const { return m_colCount; }
-    int rows() const { return m_rowCount; }
-    QSet<QPoint>::const_iterator begin() const { return m_activeCells.begin(); }
-    QSet<QPoint>::const_iterator end() const { return m_activeCells.end(); }
 
-    friend QTextStream& operator<<(QTextStream& out, const Grid& grid)
-    {
-        if (grid.m_activeCells.isEmpty())
-            return out << 1 << " " << 1 << "\n" << 0 << "\n";
+    Grid *clone() const;
+    void copyStateFrom(const Grid *grid);
 
-        int maxX = 0, minX = INT_MAX, maxY = 0, minY = INT_MAX;
-        for (const QPoint& pt : grid.m_activeCells) {
-            if (pt.x() > maxX)
-                maxX = pt.x();
-            if (pt.x() < minX)
-                minX = pt.x();
-            if (pt.y() > maxY)
-                maxY = pt.y();
-            if (pt.y() < minY)
-                minY = pt.y();
-        }
+    friend QTextStream& operator<<(QTextStream& out, const Grid& grid);
+    friend QTextStream& operator>>(QTextStream& out, Grid& grid);
 
-        QSet<QPoint> activeCells;
-        for (const QPoint& pt : grid.m_activeCells)
-            activeCells += pt - QPoint{minX, minY};
-
-        int cols = maxX - minX + 1, rows = maxY - minY + 1;
-        out << cols << " " << rows << "\n";
-        grid.writePoints(activeCells, out);
-        return out << "\n";
-    }
-
-    friend QTextStream& operator>>(QTextStream& out, Grid& grid)
-    {
-        grid.clear();
-
-        int cols, rows;
-        cols = readUnsignedInt(out);
-        rows = readUnsignedInt(out);
-        grid.m_rowCount = rows;
-        grid.m_colCount = cols;
-        if (out.status() != QTextStream::Ok
-            || cols <= 0 || rows <= 0) {
-            grid.m_rowCount = -1;
-            return out;
-        }
-        Grid g{rows, cols};
-        g.readPoints(out);
-        if (!g.isValid()) {
-            grid.m_rowCount = -1;
-            return out;
-        }
-
-        grid.copyStateFrom(&g);
-        return out;
-    }
 private:
-    template <typename Container>
-    void writePoints(const Container& points, QTextStream& stream) const
-    {
-        stream << m_activeCells.size();
-        for (const QPoint& pt : points)
-            stream << "\n" << pt.x() << " " << pt.y();
-        stream << "\n";
-    }
-
-    void readPoints(QTextStream& stream)
-    {
-        bool valid = true;
-        int n = readUnsignedInt(stream);
-        if (n <= 0)
-            valid = false;
-        while (n-- > 0 && stream.status() == QTextStream::Ok) {
-            int x = readUnsignedInt(stream);
-            int y = readUnsignedInt(stream);
-            if (stream.status() != QTextStream::Ok
-                || x < 0 || y < 0 || x >= m_colCount || y >= m_rowCount) {
-                valid = false;
-                break;
-            }
-            m_activeCells += QPoint{x, y};
-        }
-
-        if (!valid || stream.status() != QTextStream::Ok)
-            m_rowCount = -1;
-    }
+    void invalidate();
+    void readPoints(QTextStream& stream);
 
     QSet<QPoint> m_activeCells;
-    // Mapping of column->map[row, data].
     QVector<QHash<int, QVariant>> m_data;
-    int m_colCount = 0;
-    int m_rowCount = 0;
+    QSize m_size;
 };
 
 Q_DECLARE_METATYPE(Grid*)

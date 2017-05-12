@@ -47,8 +47,8 @@ MainWindow::MainWindow(QWidget *parent)
       m_ui(new Ui::MainWindow)
 {
     setupUI();
-    m_grid = new Grid(m_ui->spinBoxGridSizeX->value(),
-                      m_ui->spinBoxGridSizeY->value(), this);
+    m_grid = new Grid({m_ui->spinBoxGridSizeX->value(),
+                m_ui->spinBoxGridSizeY->value()}, this);
     m_gridview = new GridView(m_grid, m_ui->canvas, this);
     m_simulation = new Simulation(m_grid, this);
     m_templateManager = new TemplateManager;
@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    delete m_gridview;
     delete m_ui;
 }
 
@@ -87,11 +88,11 @@ void MainWindow::setupSignalsAndSlots()
             m_ui->pushButtonResetSimulation->setEnabled(false);
         });
 
-    connect(m_grid, &Grid::sizeChanged, [this] (int cols, int rows) {
+    connect(m_grid, &Grid::sizeChanged, [this] (const QSize& size) {
             QSignalBlocker block1(m_ui->spinBoxGridSizeX);
             QSignalBlocker block2(m_ui->spinBoxGridSizeY);
-            m_ui->spinBoxGridSizeX->setValue(cols);
-            m_ui->spinBoxGridSizeY->setValue(rows);
+            m_ui->spinBoxGridSizeX->setValue(size.width());
+            m_ui->spinBoxGridSizeY->setValue(size.height());
 
             m_ui->canvas->setSceneRect(m_ui->canvas->scene()->itemsBoundingRect());
         });

@@ -16,7 +16,7 @@ namespace
         if (!file.open(QIODevice::ReadOnly))
             return ret;
         QTextStream in{&file};
-        ret = new Grid(1, 1);
+        ret = new Grid({1, 1});
 
         in >> *ret;
         if (!ret->isValid()) {
