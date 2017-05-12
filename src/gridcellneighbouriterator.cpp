@@ -9,9 +9,9 @@ namespace {
     };
 }
 
-GridCellNeighbourIterator::GridCellNeighbourIterator(QPoint cell, QPoint extent)
+GridCellNeighbourIterator::GridCellNeighbourIterator(const QPoint& cell, const QSize& size)
     : m_curCell(cell),
-      m_extent(extent)
+      m_gridSize(size)
 {
     ++*this;
 }
@@ -50,5 +50,5 @@ bool GridCellNeighbourIterator::operator!=(const GridCellNeighbourIterator& rhs)
 bool GridCellNeighbourIterator::valid() const
 {
     int x = m_curCell.x(), y = m_curCell.y();
-    return x >= 0 && y >= 0 && x < m_extent.x() && y < m_extent.y();
+    return x >= 0 && y >= 0 && x < m_gridSize.width() && y < m_gridSize.height();
 }

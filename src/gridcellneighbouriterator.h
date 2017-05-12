@@ -2,14 +2,15 @@
 #define GRIDCELLNEIGHBOURITERATOR_H_INCLUDED
 
 #include <QPoint>
+#include <QSize>
 
 class GridCellNeighbourIterator
 {
 public:
     GridCellNeighbourIterator() = default;
-    GridCellNeighbourIterator(QPoint cell, QPoint extent);
+    GridCellNeighbourIterator(const QPoint& cell, const QSize& gridSize);
 
-    QPoint operator*() const { return m_curCell; }
+    const QPoint& operator*() const { return m_curCell; }
     const QPoint* operator->() const { return &m_curCell; }
 
     GridCellNeighbourIterator& operator++();
@@ -21,7 +22,7 @@ private:
     bool valid() const;
 
     QPoint m_curCell;
-    QPoint m_extent;
+    QSize m_gridSize;
     int m_curOffset = -1;
 };
 
