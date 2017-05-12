@@ -1,9 +1,9 @@
-#ifndef GRIDPAINTER_H_INCLUDED
-#define GRIDPAINTER_H_INCLUDED
+#ifndef CELLPAINTER_H_INCLUDED
+#define CELLPAINTER_H_INCLUDED
 
 #include "gridmousetool.h"
 
-class GridPainter : public GridMouseTool
+class CellPainter : public GridMouseTool
 {
     Q_OBJECT
 public:
@@ -22,4 +22,4 @@ private:
     bool m_paintMode;
 };
 
-#endif /* GRIDPAINTER_H_INCLUDED */
+#endif /* CELLPAINTER_H_INCLUDED */

@@ -2,11 +2,11 @@
 #include <QEvent>
 #include <QMouseEvent>
 #include <QKeyEvent>
-#include "gridpainter.h"
+#include "cellpainter.h"
 #include "grid.h"
 #include "gridview.h"
 
-void GridPainter::mouseMoveEvent(QEvent *event, boost::optional<QPoint> cell)
+void CellPainter::mouseMoveEvent(QEvent *event, boost::optional<QPoint> cell)
 {
     if (m_paintPoint) {
         if (!cell) {
@@ -19,7 +19,7 @@ void GridPainter::mouseMoveEvent(QEvent *event, boost::optional<QPoint> cell)
     }
 }
 
-void GridPainter::mousePressEvent(QEvent *event, boost::optional<QPoint> cell)
+void CellPainter::mousePressEvent(QEvent *event, boost::optional<QPoint> cell)
 {
     QMouseEvent *mevent = static_cast<QMouseEvent*>(event);
     if (mevent->buttons() == Qt::LeftButton && cell) {
@@ -29,12 +29,12 @@ void GridPainter::mousePressEvent(QEvent *event, boost::optional<QPoint> cell)
     }
 }
 
-void GridPainter::mouseReleaseEvent(QEvent *event, boost::optional<QPoint> cell)
+void CellPainter::mouseReleaseEvent(QEvent *event, boost::optional<QPoint> cell)
 {
     m_paintPoint.reset();
 }
 
-QPoint GridPainter::nearestValidCell(const QPoint& mousePosition) const
+QPoint CellPainter::nearestValidCell(const QPoint& mousePosition) const
 {
     Grid *grid = view()->grid();
     QPoint p = view()->view()->mapToScene(mousePosition).toPoint();
@@ -51,7 +51,7 @@ QPoint GridPainter::nearestValidCell(const QPoint& mousePosition) const
     return *view()->cellAtPos(view()->view()->mapFromScene(p));
 }
 
-void GridPainter::plotLine(const QPoint& from, const QPoint& to)
+void CellPainter::plotLine(const QPoint& from, const QPoint& to)
 {
     QPoint delta = to - from;
     int deltax = delta.x(), deltay = delta.y(),
@@ -80,7 +80,7 @@ void GridPainter::plotLine(const QPoint& from, const QPoint& to)
     }
 }
 
-void GridPainter::plot(const QPoint& cell)
+void CellPainter::plot(const QPoint& cell)
 {
     view()->grid()->setCellStateAt(cell, m_paintMode);
 }

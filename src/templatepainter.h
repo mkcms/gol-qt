@@ -1,7 +1,7 @@
 #ifndef TEMPLATEPAINTER_H_INCLUDED
 #define TEMPLATEPAINTER_H_INCLUDED
 
-#include "gridpainter.h"
+#include "cellpainter.h"
 
 class Grid;
 

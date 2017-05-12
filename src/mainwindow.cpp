@@ -8,7 +8,7 @@
 #include "simulation.h"
 #include "gridview.h"
 #include "grid.h"
-#include "gridpainter.h"
+#include "cellpainter.h"
 #include "templatemanager.h"
 #include "templatepainter.h"
 
@@ -146,7 +146,7 @@ void MainWindow::onIdleStateEntered()
 void MainWindow::setupNormalPainter()
 {
     delete m_activePainter;
-    m_activePainter = new GridPainter(m_gridview, this);
+    m_activePainter = new CellPainter(m_gridview, this);
 }
 
 void MainWindow::setupTemplatePainter()
