@@ -233,6 +233,7 @@ void MainWindow::setupStateMachine()
 
 
 
+    connect(this, SIGNAL(destroyed()), machine, SLOT(stop()));
     QState *initial = new QState(topLevel);
     topLevel->setInitialState(initial);
     initial->addTransition(idle);
