@@ -156,7 +156,6 @@ void TemplateManager::createImageForItem(const QModelIndex& index)
         QIcon icon{pixmap};
         QString name = item->text();
         item->setIcon(icon);
-        item->setText("");
         item->setToolTip(tooltipFormat.arg(name)
                          .arg(grid->cols())
                          .arg(grid->rows())
