@@ -39,8 +39,26 @@ bool GridEventFilter::eventFilter(QObject *object, QEvent *event)
 
 void GridPainter::mouseMoveEvent(QEvent *event, boost::optional<QPoint> cell)
 {
-    if (cell && m_mousePressed)
+    if (m_mousePressed) {
+        QMouseEvent *mevent = static_cast<QMouseEvent*>(event);
+        Grid *grid = view()->grid();
+        if (!cell) {
+            QPoint p = view()->view()->mapToScene(mevent->pos()).toPoint();
+
+            if (p.x() < 0)
+                p.rx() = 0;
+            if (p.x() / GridView::RectSize >= grid->cols())
+                p.rx() = (grid->cols() - 1) * GridView::RectSize;
+            if (p.y() < 0)
+                p.ry() = 0;
+            if (p.y() / GridView::RectSize >= grid->rows())
+                p.ry() = (grid->rows() - 1) * GridView::RectSize;
+
+            cell = view()->cellAtPos(view()->view()->mapFromScene(p));
+        }
+
         view()->grid()->setCellStateAt(*cell, m_paintMode);
+    }
 }
 
 void GridPainter::mousePressEvent(QEvent *event, boost::optional<QPoint> cell)
