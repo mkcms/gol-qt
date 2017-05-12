@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QStateMachine>
+#include <QSortFilterProxyModel>
 #include <QDebug>
 #include "simulation.h"
 #include "gridview.h"
@@ -50,8 +51,9 @@ MainWindow::MainWindow(QWidget *parent)
                       m_ui->spinBoxGridSizeY->value(), this);
     m_gridview = new GridView(m_grid, m_ui->canvas, this);
     m_simulation = new Simulation(m_grid, this);
-    m_ui->listView->setModel(new TemplateManager);
-    templateManager()->rescanTemplates();
+    m_templateManager = new TemplateManager;
+    m_ui->listView->setModel(m_templateManager);
+    m_templateManager->rescanTemplates();
     m_ui->dialSimulationSpeed->setValue(m_ui->dialSimulationSpeed->value());
     setupStateMachine();
     setupSignalsAndSlots();
@@ -113,6 +115,11 @@ void MainWindow::setupSignalsAndSlots()
         });
 
     connect(this, SIGNAL(destroyed()), m_simulation, SLOT(stop()));
+
+    connect(m_ui->lineEditTemplateSearch,
+            SIGNAL(textChanged(const QString&)),
+            this,
+            SLOT(setupTemplateFilter(const QString&)));
 }
 
 void MainWindow::onSimulationStarted()
@@ -144,19 +151,22 @@ void MainWindow::setupNormalPainter()
 void MainWindow::setupTemplatePainter()
 {
     QModelIndex index = m_ui->listView->currentIndex();
+    QAbstractItemModel *currentModel = m_ui->listView->model();
+    if (currentModel != m_templateManager)
+        index = static_cast<QSortFilterProxyModel*>(currentModel)->mapToSource(index);
     if (!index.isValid() || index == m_lastTemplatePainted) {
         emit templatePaintingDone();
         return;
     }
 
     delete m_activePainter;
-    Grid *grid = qvariant_cast<Grid*>(templateManager()->data(index, GridDataRole));
+    Grid *grid = qvariant_cast<Grid*>(m_templateManager->data(index, GridDataRole));
     if (!grid) {
         QMessageBox::critical(this,
                               tr("Error ocurred"),
                               tr("Error ocurred when loading template file"));
         m_activePainter = nullptr;
-        templateManager()->rescanTemplates();
+        m_templateManager->rescanTemplates();
         emit templatePaintingDone();
         return;
     }
@@ -175,10 +185,51 @@ void MainWindow::saveCurrentGrid()
                                          tr("Template name:"), QLineEdit::Normal,
                                          "", &ok);
     if (ok && !name.isEmpty())
-        if (!templateManager()->addTemplate(name, m_grid))
+        if (!m_templateManager->addTemplate(name, m_grid))
             QMessageBox::critical(this,
                                   tr("Error ocurred"),
                                   tr("Error ocurred when saving template file"));
+}
+
+void MainWindow::setupTemplateFilter(const QString& filter)
+{
+    bool filterIsValid = true;
+
+    if (filter.isEmpty())
+        m_ui->listView->setModel(m_templateManager);
+    else {
+        QRegExp re{filter + ".*"};
+        if (!re.isValid())
+            filterIsValid = false;
+        else {
+            QAbstractItemModel* current = m_ui->listView->model();
+            QSortFilterProxyModel *model = new QSortFilterProxyModel;
+            model->setSourceModel(m_templateManager);
+            re.setCaseSensitivity(Qt::CaseInsensitive);
+            model->setFilterRegExp(re);
+            m_ui->listView->setModel(model);
+
+            if (current != m_templateManager)
+                delete current;
+        }
+    }
+
+
+    QColor textColor;
+    if (!filterIsValid) {
+        statusBar()->showMessage(tr("Invalid regular expression"));
+        textColor = Qt::red;
+    }
+    else {
+        statusBar()->clearMessage();
+        textColor = palette().color(QPalette::Text);
+    }
+
+    QPalette pal = m_ui->lineEditTemplateSearch->palette();
+
+    pal.setColor(QPalette::Text, textColor);
+    m_ui->lineEditTemplateSearch->setAutoFillBackground(true);
+    m_ui->lineEditTemplateSearch->setPalette(pal);
 }
 
 void MainWindow::setupStateMachine()
@@ -239,9 +290,4 @@ void MainWindow::setupStateMachine()
     initial->addTransition(idle);
     machine->setInitialState(topLevel);
     machine->start();
-}
-
-TemplateManager *MainWindow::templateManager()
-{
-    return static_cast<TemplateManager*>(m_ui->listView->model());
 }

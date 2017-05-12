@@ -24,6 +24,7 @@ private slots:
     void saveCurrentGrid();
     void setupNormalPainter();
     void setupTemplatePainter();
+    void setupTemplateFilter(const QString& filter);
 
 signals:
     void templatePaintingDone();
@@ -32,7 +33,6 @@ private:
     void setupUI();
     void setupSignalsAndSlots();
     void setupStateMachine();
-    TemplateManager *templateManager();
 
     Ui::MainWindow *m_ui;
     Grid *m_grid;
@@ -40,6 +40,7 @@ private:
     GridEventFilter *m_activePainter = nullptr;
     Simulation *m_simulation;
     QModelIndex m_lastTemplatePainted;
+    TemplateManager *m_templateManager;
 };
 
 #endif /* MAINWINDOW_H_INCLUDED */
