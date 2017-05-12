@@ -1,4 +1,3 @@
-#include <QGraphicsRectItem>
 #include <QtGlobal>
 #include <QGraphicsView>
 #include "gridview.h"
@@ -51,14 +50,14 @@ void GridView::removeColumn()
         removeCell({m_grid->cols(), i});
 }
 
-void GridView::addCell(QPoint cell)
+void GridView::addCell(const QPoint& cell)
 {
     auto *item = m_view->scene()->addRect(0, 0, RectSize, RectSize);
     item->setPos(cell * RectSize);
     m_grid->setCellDataAt(cell, QVariant::fromValue(item));
 }
 
-void GridView::removeCell(QPoint cell)
+void GridView::removeCell(const QPoint& cell)
 {
     auto *item = qvariant_cast<QGraphicsRectItem*>(m_grid->dataAt(cell));
     delete item;
@@ -76,7 +75,7 @@ boost::optional<QPoint> GridView::cellAtPos(const QPoint &point)
     return boost::none;
 }
 
-void GridView::setVisibleCellState(QPoint cell, bool state)
+void GridView::setVisibleCellState(const QPoint& cell, bool state)
 {
     QGraphicsRectItem *item = qvariant_cast<QGraphicsRectItem*>(m_grid->dataAt(cell));
 

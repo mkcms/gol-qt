@@ -2,10 +2,10 @@
 #define GRIDVIEW_H_INCLUDED
 
 #include <QObject>
-#include <boost/optional.hpp>
 #include <QGraphicsRectItem>
+#include <boost/optional.hpp>
 
-Q_DECLARE_METATYPE(QGraphicsRectItem*);
+Q_DECLARE_METATYPE(QGraphicsRectItem*)
 
 class QGraphicsView;
 class Grid;
@@ -30,11 +30,11 @@ private slots:
     void addColumn();
     void removeColumn();
     void removeRow();
-    void addCell(QPoint cell);
-    void removeCell(QPoint cell);
+    void addCell(const QPoint& cell);
+    void removeCell(const QPoint& cell);
 
 public slots:
-    void setVisibleCellState(QPoint cell, bool state);
+    void setVisibleCellState(const QPoint& cell, bool state);
 
 private:
     Grid *m_grid;
