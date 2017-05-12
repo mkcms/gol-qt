@@ -13,8 +13,11 @@ public:
     virtual void mousePressEvent(QEvent *event, boost::optional<QPoint> item) override;
     virtual void mouseReleaseEvent(QEvent *event, boost::optional<QPoint> item) override;
 
-
 private:
+    QPoint nearestValidCell(const QPoint& mousePosition) const;
+    void plotLine(const QPoint& from, const QPoint& to);
+    void plot(const QPoint& cell);
+
     boost::optional<QPoint> m_paintPoint;
     bool m_paintMode;
 };
