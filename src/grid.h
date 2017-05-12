@@ -9,6 +9,7 @@
 #include <QVariant>
 #include <QVector>
 #include <QTextStream>
+#include "gridcellneighbouriterator.h"
 
 inline uint qHash(const QPoint& key)
 {
@@ -39,68 +40,6 @@ namespace {
         return ret;
     }
 }
-
-class GridCellNeighbourIterator
-{
-public:
-    static constexpr int offsets[][2] =
-    {
-        {-1, 0}, {0, -1}, {1, 0},
-        {1, 0}, {0, 1}, {0, 1},
-        {-1, 0}, {-1, 0}
-    };
-
-    GridCellNeighbourIterator() = default;
-    GridCellNeighbourIterator(QPoint cell, QPoint extent)
-        : m_curCell(cell), m_extent(extent)
-    {
-        ++*this;
-    }
-
-    QPoint operator*() const { return m_curCell; }
-    const QPoint* operator->() const { return &m_curCell; }
-    GridCellNeighbourIterator& operator++()
-    {
-        ++m_curOffset;
-        if (m_curOffset < 8) {
-            m_curCell.rx() += offsets[m_curOffset][0];
-            m_curCell.ry() += offsets[m_curOffset][1];
-            if (!valid())
-                ++*this;
-        }
-        return *this;
-    }
-
-    GridCellNeighbourIterator operator++(int)
-    {
-        auto ret = *this;
-        ++*this;
-        return ret;
-    }
-
-    bool operator==(const GridCellNeighbourIterator& rhs) const
-    {
-        return rhs.m_curOffset == -1
-            ? m_curOffset >= 8
-            : m_curCell == rhs.m_curCell;
-    }
-
-    bool operator!=(const GridCellNeighbourIterator& rhs) const
-    {
-        return !(*this == rhs);
-    }
-
-private:
-    bool valid() const
-    {
-        int x = m_curCell.x(), y = m_curCell.y();
-        return x >= 0 && y >= 0 && x < m_extent.x() && y < m_extent.y();
-    }
-
-    QPoint m_curCell;
-    QPoint m_extent;
-    int m_curOffset = -1;
-};
 
 class Grid : public QObject
 {
