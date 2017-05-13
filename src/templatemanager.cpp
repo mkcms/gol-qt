@@ -34,6 +34,12 @@ private:
     QString m_path;
 };
 
+class ResourceTemplateItem : public SavedTemplateItem
+{
+public:
+    ResourceTemplateItem(const QString& path);
+};
+
 SavedTemplateItem::SavedTemplateItem(const QString& path)
     : AbstractGridTemplateItem(QFileInfo(path).fileName()),
       m_path(path)
@@ -60,6 +66,10 @@ Grid *SavedTemplateItem::grid()
 
     return ret;
 }
+
+ResourceTemplateItem::ResourceTemplateItem(const QString& path)
+    : SavedTemplateItem(path)
+{ }
 
 bool AbstractGridTemplateItem::initializeOrUpdate()
 {
@@ -157,16 +167,28 @@ void TemplateManager::scanTemplates()
 {
     qDebug() << "TemplateManager::scanTemplates: Rescanning templates";
     clear();
-    QDirIterator iterator{templatesDirectory().path(), QDir::Files | QDir::Readable};
 
-    while (iterator.hasNext())
-        addSavedItem(iterator.next());
+    {
+        QDirIterator iterator{templatesDirectory().path(), QDir::Files | QDir::Readable};
+        while (iterator.hasNext())
+            addSavedItem(iterator.next());
+    }
+
+    {
+        QDirIterator iterator{":/templates"};
+        while (iterator.hasNext())
+            addResourceItem(iterator.next());
+    }
 
     sort(0);
 }
 
 bool TemplateManager::addTemplate(const QString& name, Grid *grid)
 {
+    if (auto *existing = existingItemWithName(name))
+        if (auto *resource = dynamic_cast<ResourceTemplateItem*>(existing))
+            return false;
+
     QFile f{templatesDirectory().absoluteFilePath(name)};
     if (!f.open(QIODevice::WriteOnly))
         return false;
@@ -189,7 +211,7 @@ QDir TemplateManager::templatesDirectory()
     return dir;
 }
 
-bool TemplateManager::addSavedItem(const QString& path)
+bool TemplateManager::addSavedItem(const QString& path, bool isResource)
 {
     AbstractGridTemplateItem *item = nullptr;
     QString fname = QFileInfo(path).fileName();
@@ -197,7 +219,10 @@ bool TemplateManager::addSavedItem(const QString& path)
     item = existingItemWithName(fname);
 
     if (!item) {
-        item = new SavedTemplateItem(path);
+        if (isResource)
+            item = new ResourceTemplateItem(path);
+        else
+            item = new SavedTemplateItem(path);
         item->setEditable(false);
         item->initializeOrUpdate();
         appendRow(item);
@@ -209,6 +234,14 @@ bool TemplateManager::addSavedItem(const QString& path)
     }
 
     return true;
+}
+
+bool TemplateManager::addResourceItem(const QString& path)
+{
+    if (auto *item = existingItemWithName(QFileInfo(path).fileName()))
+        removeRow(indexFromItem(item).row());
+
+    return addSavedItem(path, true);
 }
 
 AbstractGridTemplateItem *TemplateManager::existingItemWithName(const QString& name)

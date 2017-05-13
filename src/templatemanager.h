@@ -30,7 +30,8 @@ private slots:
 
 private:
     AbstractGridTemplateItem *existingItemWithName(const QString& name);
-    bool addSavedItem(const QString& path);
+    bool addSavedItem(const QString& path, bool isResource = false);
+    bool addResourceItem(const QString& path);
 };
 
 #endif /* TEMPLATEMANAGER_H_INCLUDED */

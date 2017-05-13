@@ -6,5 +6,9 @@
   <file>repeat.png</file>
   <file>step-forward.png</file>
   <file>save.png</file>
+  <file>templates/glider_NE</file>
+  <file>templates/glider_NW</file>
+  <file>templates/glider_SE</file>
+  <file>templates/glider_SW</file>
 </qresource>
 </RCC>
