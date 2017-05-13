@@ -179,8 +179,6 @@ void TemplateManager::scanTemplates()
         while (iterator.hasNext())
             addResourceItem(iterator.next());
     }
-
-    sort(0);
 }
 
 bool TemplateManager::addTemplate(const QString& name, Grid *grid)
