@@ -12,7 +12,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-qt5_wrap_ui(QT_UI_HEADERS resources/mainwindow.ui)
+qt5_wrap_ui(QT_UI_HEADERS resources/forms/mainwindow.ui)
 qt5_add_resources(QT_RESOURCES resources/resources.qrc)
 
 include_directories(src/)
