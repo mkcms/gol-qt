@@ -1,11 +1,11 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
 <qresource>
-  <file>pause.png</file>
-  <file>play.png</file>
-  <file>repeat.png</file>
-  <file>step-forward.png</file>
-  <file>save.png</file>
+  <file>icons/pause.png</file>
+  <file>icons/play.png</file>
+  <file>icons/repeat.png</file>
+  <file>icons/step-forward.png</file>
+  <file>icons/save.png</file>
   <file>templates/glider_NE</file>
   <file>templates/glider_NW</file>
   <file>templates/glider_SE</file>

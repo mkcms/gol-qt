@@ -190,8 +190,8 @@
                 </property>
                 <property name="icon">
                  <iconset resource="resources.qrc">
-                  <normaloff>:/play.png</normaloff>
-                  <activeon>:/pause.png</activeon>:/play.png</iconset>
+                  <normaloff>:/icons/play.png</normaloff>
+                  <activeon>:/icons/pause.png</activeon>:/icons/play.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -217,7 +217,7 @@
                 </property>
                 <property name="icon">
                  <iconset resource="resources.qrc">
-                  <normaloff>:/step-forward.png</normaloff>:/step-forward.png</iconset>
+                  <normaloff>:/icons/step-forward.png</normaloff>:/icons/step-forward.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -240,7 +240,7 @@
                 </property>
                 <property name="icon">
                  <iconset resource="resources.qrc">
-                  <normaloff>:/repeat.png</normaloff>:/repeat.png</iconset>
+                  <normaloff>:/icons/repeat.png</normaloff>:/icons/repeat.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
@@ -344,7 +344,7 @@
              </property>
              <property name="icon">
               <iconset resource="resources.qrc">
-               <normaloff>:/save.png</normaloff>:/save.png</iconset>
+               <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
              </property>
              <property name="iconSize">
               <size>
