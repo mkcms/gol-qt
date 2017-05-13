@@ -21,7 +21,7 @@ std::size_t std::hash<QPoint>::operator()(const QPoint& key) const
     std::size_t seed = 12345;
     boost::hash_combine(seed, key.x());
     boost::hash_combine(seed, key.y());
-    return static_cast<uint>(seed);
+    return seed;
 }
 
 namespace {
