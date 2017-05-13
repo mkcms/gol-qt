@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     new CurrentMousePositionIndicator(m_gridview, this);
 
     m_sortedModel->setSourceModel(m_templateManager);
+    m_sortedModel->sort(0);
     m_ui->listView->setModel(m_sortedModel);
 }
 
