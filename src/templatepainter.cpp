@@ -8,7 +8,7 @@ GridTemplatePainter::GridTemplatePainter(GridView *view, Grid *template_, QObjec
       m_template(template_)
 {
     auto deinitialize = [this] { m_lastInsertMode = boost::none; };
-    connect(view->grid(), &GridView::destroyed, deinitialize);
+    connect(view->grid(), &Grid::destroyed, deinitialize);
     connect(view, &GridView::destroyed, deinitialize);
 }
 
