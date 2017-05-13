@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
                 m_ui->spinBoxGridSizeY->value()}, this);
     m_gridview = new GridView(m_grid, m_ui->canvas, this);
     m_simulation = new Simulation(m_grid, this);
-    m_templateManager = new TemplateManager;
+    m_templateManager = new TemplateManager(this);
     m_ui->listView->setModel(m_templateManager);
     m_ui->dialSimulationSpeed->setValue(m_ui->dialSimulationSpeed->value());
     setupStateMachine();
