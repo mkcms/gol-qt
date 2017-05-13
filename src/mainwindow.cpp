@@ -53,7 +53,6 @@ MainWindow::MainWindow(QWidget *parent)
     m_simulation = new Simulation(m_grid, this);
     m_templateManager = new TemplateManager;
     m_ui->listView->setModel(m_templateManager);
-    m_templateManager->rescanTemplates();
     m_ui->dialSimulationSpeed->setValue(m_ui->dialSimulationSpeed->value());
     setupStateMachine();
     setupSignalsAndSlots();
@@ -161,13 +160,17 @@ void MainWindow::setupTemplatePainter()
     }
 
     delete m_activePainter;
-    Grid *grid = qvariant_cast<Grid*>(m_templateManager->data(index, GridDataRole));
+
+    QVariant gridVariant = m_templateManager->data(index, GridDataRole);
+    Grid *grid = nullptr;
+
+    if (gridVariant.isValid())
+        grid = qvariant_cast<Grid*>(gridVariant);
     if (!grid) {
         QMessageBox::critical(this,
                               tr("Error ocurred"),
                               tr("Error ocurred when loading template file"));
         m_activePainter = nullptr;
-        m_templateManager->rescanTemplates();
         emit templatePaintingDone();
         return;
     }

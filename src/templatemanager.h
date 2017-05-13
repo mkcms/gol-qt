@@ -5,11 +5,11 @@
 #include <QDir>
 
 class Grid;
+class AbstractGridTemplateItem;
 
 enum TemplateManagerDataRole
 {
-    GridDataRole = Qt::UserRole + 1,
-    FilePathDataRole
+    GridDataRole = Qt::UserRole + 1
 };
 
 class TemplateManager : public QStandardItemModel
@@ -23,12 +23,14 @@ public:
     virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
 
 public slots:
-    void rescanTemplates();
-    bool addTemplate(QString name, Grid *grid);
+    bool addTemplate(const QString& name, Grid *grid);
+
+private slots:
+    void scanTemplates();
 
 private:
-    void addItem(const QString& path);
-    void createImageForItem(const QModelIndex& path);
+    AbstractGridTemplateItem *existingItemWithName(const QString& name);
+    bool addSavedItem(const QString& path);
 };
 
 #endif /* TEMPLATEMANAGER_H_INCLUDED */
