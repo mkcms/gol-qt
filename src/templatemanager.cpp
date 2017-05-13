@@ -184,8 +184,12 @@ void TemplateManager::scanTemplates()
 bool TemplateManager::addTemplate(const QString& name, Grid *grid)
 {
     if (auto *existing = existingItemWithName(name))
-        if (auto *resource = dynamic_cast<ResourceTemplateItem*>(existing))
+        if (auto *resource = dynamic_cast<ResourceTemplateItem*>(existing)) {
+            qWarning() << "TemplateManager::addTemplate:"
+                     << "builtin template with the same name already exists:"
+                     << name;
             return false;
+        }
 
     QFile f{templatesDirectory().absoluteFilePath(name)};
     if (!f.open(QIODevice::WriteOnly))
