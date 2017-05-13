@@ -3,7 +3,6 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QStateMachine>
-#include <QSortFilterProxyModel>
 #include <QDebug>
 #include "simulation.h"
 #include "gridview.h"
@@ -52,11 +51,14 @@ MainWindow::MainWindow(QWidget *parent)
     m_gridview = new GridView(m_grid, m_ui->canvas, this);
     m_simulation = new Simulation(m_grid, this);
     m_templateManager = new TemplateManager(this);
-    m_ui->listView->setModel(m_templateManager);
+    m_sortedModel = new QSortFilterProxyModel(this);
     m_ui->dialSimulationSpeed->setValue(m_ui->dialSimulationSpeed->value());
     setupStateMachine();
     setupSignalsAndSlots();
     new CurrentMousePositionIndicator(m_gridview, this);
+
+    m_sortedModel->setSourceModel(m_templateManager);
+    m_ui->listView->setModel(m_sortedModel);
 }
 
 MainWindow::~MainWindow()
@@ -151,9 +153,7 @@ void MainWindow::setupNormalPainter()
 void MainWindow::setupTemplatePainter()
 {
     QModelIndex index = m_ui->listView->currentIndex();
-    QAbstractItemModel *currentModel = m_ui->listView->model();
-    if (currentModel != m_templateManager)
-        index = static_cast<QSortFilterProxyModel*>(currentModel)->mapToSource(index);
+
     if (!index.isValid() || index == m_lastTemplatePainted) {
         emit templatePaintingDone();
         return;
@@ -161,7 +161,7 @@ void MainWindow::setupTemplatePainter()
 
     delete m_activePainter;
 
-    QVariant gridVariant = m_templateManager->data(index, GridDataRole);
+    QVariant gridVariant = m_sortedModel->data(index, GridDataRole);
     Grid *grid = nullptr;
 
     if (gridVariant.isValid())
@@ -200,24 +200,14 @@ void MainWindow::setupTemplateFilter(const QString& filter)
     bool filterIsValid = true;
 
     if (filter.isEmpty())
-        m_ui->listView->setModel(m_templateManager);
+        m_sortedModel->setFilterRegExp("");
     else {
         QRegExp re{filter + ".*"};
         if (!re.isValid())
             filterIsValid = false;
-        else {
-            QAbstractItemModel* current = m_ui->listView->model();
-            QSortFilterProxyModel *model = new QSortFilterProxyModel;
-            model->setSourceModel(m_templateManager);
-            re.setCaseSensitivity(Qt::CaseInsensitive);
-            model->setFilterRegExp(re);
-            m_ui->listView->setModel(model);
-
-            if (current != m_templateManager)
-                delete current;
-        }
+        else
+            m_sortedModel->setFilterRegExp(re);
     }
-
 
     QColor textColor;
     if (!filterIsValid) {

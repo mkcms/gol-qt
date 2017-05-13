@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QModelIndex>
+#include <QSortFilterProxyModel>
 #include "ui_mainwindow.h"
 
 class Grid;
@@ -33,6 +34,10 @@ private:
     void setupUI();
     void setupSignalsAndSlots();
     void setupStateMachine();
+    QAbstractItemModel *templateListModel()
+    {
+        return m_ui->listView->model();
+    }
 
     Ui::MainWindow *m_ui;
     Grid *m_grid;
@@ -41,6 +46,7 @@ private:
     Simulation *m_simulation;
     QModelIndex m_lastTemplatePainted;
     TemplateManager *m_templateManager;
+    QSortFilterProxyModel *m_sortedModel;
 };
 
 #endif /* MAINWINDOW_H_INCLUDED */
