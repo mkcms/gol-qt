@@ -5,15 +5,11 @@
 GridTemplatePainter::GridTemplatePainter(GridView *view, Grid *template_, QObject *parent)
     : GridMouseTool(view, parent),
       m_template(template_)
-{
-    auto deinitialize = [this] { m_lastInsertMode = boost::none; };
-    connect(view->grid(), &Grid::destroyed, deinitialize);
-    connect(view, &GridView::destroyed, deinitialize);
-}
+{ }
 
 GridTemplatePainter::~GridTemplatePainter()
 {
-    if (!isDone()) {
+    if (view() && view()->grid() && !isDone()) {
         maybeHidePreview(m_insertionPoint, true);
         finish();
     }
