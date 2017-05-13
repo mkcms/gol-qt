@@ -10,7 +10,6 @@
 #include <boost/bimap.hpp>
 #include <QThread>
 #include "simulation.h"
-#include "grid.h"
 
 static constexpr int MaxQueueSize = 512;
 

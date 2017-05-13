@@ -3,9 +3,10 @@
 
 #include <QObject>
 #include <QPoint>
+#include <QPointer>
 #include <boost/optional.hpp>
+#include "gridview.h"
 
-class GridView;
 class QKeyEvent;
 
 class GridMouseTool : public QObject
@@ -24,7 +25,7 @@ protected:
     virtual void keyPressEvent(QKeyEvent *event) { }
 
 private:
-    GridView *m_view;
+    QPointer<GridView> m_view;
 };
 
 #endif /* GRIDMOUSETOOL_H_INCLUDED */

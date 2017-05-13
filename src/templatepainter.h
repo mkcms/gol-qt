@@ -1,9 +1,9 @@
 #ifndef TEMPLATEPAINTER_H_INCLUDED
 #define TEMPLATEPAINTER_H_INCLUDED
 
+#include <QPointer>
+#include "grid.h"
 #include "cellpainter.h"
-
-class Grid;
 
 class GridTemplatePainter : public GridMouseTool
 {
@@ -31,7 +31,7 @@ private:
 
     void finish() { m_done = true; emit done(); }
 
-    Grid *m_template;
+    QPointer<Grid> m_template;
     QPoint m_insertionPoint;
     boost::optional<TemplateInsertMode> m_lastInsertMode;
     bool m_done = false;

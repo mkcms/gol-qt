@@ -2,8 +2,9 @@
 #define SIMULATION_H_INCLUDED
 
 #include <QObject>
+#include <QPointer>
+#include "grid.h"
 
-class Grid;
 class QTimer;
 class Worker;
 
@@ -33,7 +34,7 @@ private slots:
 private:
     void startWorker();
 
-    Grid *m_grid;
+    QPointer<Grid> m_grid;
     QTimer *m_timer;
     Worker *m_worker = nullptr;
     int m_delay = 100;

@@ -3,12 +3,12 @@
 
 #include <QObject>
 #include <QGraphicsRectItem>
+#include <QPointer>
+#include <QGraphicsView>
 #include <boost/optional.hpp>
+#include "grid.h"
 
 Q_DECLARE_METATYPE(QGraphicsRectItem*)
-
-class QGraphicsView;
-class Grid;
 
 class GridView : public QObject
 {
@@ -21,8 +21,8 @@ private:
     void drawInitialGrid();
 
 public:
-    Grid *grid() { return m_grid; }
-    QGraphicsView *view() { return m_view; }
+    Grid *grid() { return m_grid.data(); }
+    QGraphicsView *view() { return m_view.data(); }
     boost::optional<QPoint> cellAtPos(const QPoint &point);
 
 private slots:
@@ -37,8 +37,8 @@ public slots:
     void setVisibleCellState(const QPoint& cell, bool state);
 
 private:
-    Grid *m_grid;
-    QGraphicsView *m_view;
+    QPointer<Grid> m_grid;
+    QPointer<QGraphicsView> m_view;
 };
 
 #endif /* GRIDVIEW_H_INCLUDED */

@@ -1,6 +1,5 @@
 #include <QKeyEvent>
 #include "templatepainter.h"
-#include "grid.h"
 #include "gridview.h"
 
 GridTemplatePainter::GridTemplatePainter(GridView *view, Grid *template_, QObject *parent)

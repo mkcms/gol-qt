@@ -2,7 +2,6 @@
 #include <QMouseEvent>
 #include <QGraphicsView>
 #include "gridmousetool.h"
-#include "gridview.h"
 
 GridMouseTool::GridMouseTool(GridView *view, QObject *parent)
     : QObject(parent),
