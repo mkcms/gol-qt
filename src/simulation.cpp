@@ -112,6 +112,7 @@ void Simulation::startWorker()
 
     m_worker->start();
     m_preSimulationGrid = m_grid->clone();
+    m_preSimulationGrid->setParent(this);
 
     emit started();
 }
@@ -160,6 +161,7 @@ void Simulation::reset()
         stop();
 
     m_grid->copyStateFrom(m_preSimulationGrid);
+    delete m_preSimulationGrid;
     m_preSimulationGrid = nullptr;
 }
 
