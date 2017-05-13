@@ -14,7 +14,7 @@ GridMouseTool::GridMouseTool(GridView *view, QObject *parent)
 
 bool GridMouseTool::eventFilter(QObject *object, QEvent *event)
 {
-    if (object == m_view->view()) {
+    if (m_view && object == m_view->view()) {
         if (event->type() == QEvent::KeyPress)
             keyPressEvent(static_cast<QKeyEvent*>(event));
         return QObject::eventFilter(object, event);
