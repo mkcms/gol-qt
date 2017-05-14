@@ -20,20 +20,25 @@ public:
     virtual ~MainWindow();
 
 private slots:
-    void onSimulationStarted();
-    void onIdleStateEntered();
-    void saveCurrentGrid();
-    void setupNormalPainter();
+    void controlSimulation();
+
+    void setupCellPainter();
     void setupTemplatePainter();
     void setupTemplateFilter(const QString& filter);
+
+    void onSimulationStarted();
+    void onSimulationEnded();
+
+    void saveGridAsTemplate();
 
 signals:
     void templatePaintingDone();
 
 private:
     void setupUI();
+    void setupChildObjects();
     void setupSignalsAndSlots();
-    void setupStateMachine();
+
     QAbstractItemModel *templateListModel()
     {
         return m_ui->listView->model();
@@ -42,7 +47,7 @@ private:
     Ui::MainWindow *m_ui;
     Grid *m_grid;
     GridView *m_gridview;
-    GridMouseTool *m_activePainter = nullptr;
+    GridMouseTool *m_currentTool = nullptr;
     Simulation *m_simulation;
     QModelIndex m_lastTemplatePainted;
     TemplateManager *m_templateManager;

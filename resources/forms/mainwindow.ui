@@ -232,6 +232,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="pushButtonResetSimulation">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="statusTip">
                  <string>Reset simulation</string>
                 </property>
@@ -254,7 +257,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QDial" name="dialSimulationSpeed">
+               <widget class="QDial" name="dialSimulationDelay">
                 <property name="maximumSize">
                  <size>
                   <width>60</width>
@@ -274,7 +277,13 @@
                  <number>50</number>
                 </property>
                 <property name="value">
-                 <number>900</number>
+                 <number>50</number>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>true</bool>
+                </property>
+                <property name="invertedControls">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>

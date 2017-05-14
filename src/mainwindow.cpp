@@ -3,7 +3,6 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QStateMachine>
-#include <QDebug>
 #include "simulation.h"
 #include "gridview.h"
 #include "grid.h"
@@ -46,20 +45,9 @@ MainWindow::MainWindow(QWidget *parent)
       m_ui(new Ui::MainWindow)
 {
     setupUI();
-    m_grid = new Grid({m_ui->spinBoxGridSizeX->value(),
-                m_ui->spinBoxGridSizeY->value()}, this);
-    m_gridview = new GridView(m_grid, m_ui->canvas, this);
-    m_simulation = new Simulation(m_grid, this);
-    m_templateManager = new TemplateManager(this);
-    m_sortedModel = new QSortFilterProxyModel(this);
-    m_ui->dialSimulationSpeed->setValue(m_ui->dialSimulationSpeed->value());
-    setupStateMachine();
+    setupChildObjects();
     setupSignalsAndSlots();
-    new CurrentMousePositionIndicator(m_gridview, this);
-
-    m_sortedModel->setSourceModel(m_templateManager);
-    m_sortedModel->sort(0);
-    m_ui->listView->setModel(m_sortedModel);
+    setupCellPainter();
 }
 
 MainWindow::~MainWindow()
@@ -68,87 +56,37 @@ MainWindow::~MainWindow()
     delete m_ui;
 }
 
-void MainWindow::setupUI()
+void MainWindow::controlSimulation()
 {
-    m_ui->setupUi(this);
+    if (sender() == m_ui->pushButtonSimulationStep) {
+        m_simulation->startOrDoSingleStep();
+        m_ui->pushButtonStartSimulation->setChecked(false);
+        return;
+    }
+
+    if (!m_simulation->isRunning() || m_ui->pushButtonStartSimulation->isChecked())
+        m_simulation->startOrContinue();
+    else
+        m_simulation->startOrDoSingleStep();
 }
 
-void MainWindow::setupSignalsAndSlots()
+void MainWindow::saveGridAsTemplate()
 {
-    connect(m_ui->spinBoxGridSizeX, SIGNAL(valueChanged(int)),
-            m_grid, SLOT(setColCount(int)));
-    connect(m_ui->spinBoxGridSizeY, SIGNAL(valueChanged(int)),
-            m_grid, SLOT(setRowCount(int)));
-
-    connect(m_ui->dialSimulationSpeed, &QDial::valueChanged,
-            [this] (int value) {
-                value = m_ui->dialSimulationSpeed->maximum() - value;
-                m_simulation->setDelay(value);
-        });
-
-    connect(m_ui->pushButtonResetSimulation, &QPushButton::clicked, [this] {
-            m_ui->pushButtonResetSimulation->setEnabled(false);
-        });
-
-    connect(m_grid, &Grid::sizeChanged, [this] (const QSize& size) {
-            QSignalBlocker block1(m_ui->spinBoxGridSizeX);
-            QSignalBlocker block2(m_ui->spinBoxGridSizeY);
-            m_ui->spinBoxGridSizeX->setValue(size.width());
-            m_ui->spinBoxGridSizeY->setValue(size.height());
-
-            m_ui->canvas->setSceneRect(m_ui->canvas->scene()->itemsBoundingRect());
-        });
-
-    connect(m_ui->pushButtonClearGrid, SIGNAL(clicked()), m_grid, SLOT(clear()));
-    connect(m_ui->pushButtonSaveGrid, SIGNAL(clicked()), this, SLOT(saveCurrentGrid()));
-    connect(this, &MainWindow::templatePaintingDone, [this] {
-            m_lastTemplatePainted = QModelIndex();
-            m_ui->listView->clearSelection();
-        });
-
-    connect(m_ui->spinBoxZoomAmount,
-            static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
-            [this] (double value) {
-                m_ui->canvas->setZoomFactor(value / 100.0);
-        });
-
-    connect(m_ui->canvas, &GraphicsView::zoomFactorChanged, [this] (qreal factor) {
-            QSignalBlocker block1(m_ui->spinBoxZoomAmount);
-            m_ui->spinBoxZoomAmount->setValue(factor * 100);
-        });
-
-    connect(this, SIGNAL(destroyed()), m_simulation, SLOT(stop()));
-
-    connect(m_ui->lineEditTemplateSearch,
-            SIGNAL(textChanged(const QString&)),
-            this,
-            SLOT(setupTemplateFilter(const QString&)));
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Save grid as template"),
+                                         tr("Template name:"), QLineEdit::Normal,
+                                         "", &ok);
+    if (ok && !name.isEmpty())
+        if (!m_templateManager->addTemplate(name, m_grid))
+            QMessageBox::critical(this,
+                                  tr("Error ocurred"),
+                                  tr("Error ocurred when saving template file"));
 }
 
-void MainWindow::onSimulationStarted()
+void MainWindow::setupCellPainter()
 {
-    delete m_activePainter;
-    m_activePainter = nullptr;
-    m_ui->spinBoxGridSizeX->setEnabled(false);
-    m_ui->spinBoxGridSizeY->setEnabled(false);
-    m_ui->pushButtonClearGrid->setEnabled(false);
-    m_ui->pushButtonResetSimulation->setEnabled(true);
-    m_ui->groupBoxTemplates->setEnabled(false);
-}
-
-void MainWindow::onIdleStateEntered()
-{
-    m_ui->spinBoxGridSizeX->setEnabled(true);
-    m_ui->spinBoxGridSizeY->setEnabled(true);
-    m_ui->pushButtonClearGrid->setEnabled(true);
-    m_ui->pushButtonResetSimulation->setEnabled(m_simulation->preSimulationGrid() != nullptr);
-    m_ui->groupBoxTemplates->setEnabled(true);
-}
-
-void MainWindow::setupNormalPainter()
-{
-    delete m_activePainter;
-    m_activePainter = new CellPainter(m_gridview, this);
+    delete m_currentTool;
+    m_currentTool = new CellPainter(m_gridview, this);
 }
 
 void MainWindow::setupTemplatePainter()
@@ -160,40 +98,25 @@ void MainWindow::setupTemplatePainter()
         return;
     }
 
-    delete m_activePainter;
+    delete m_currentTool;
 
     QVariant gridVariant = m_sortedModel->data(index, GridDataRole);
-    Grid *grid = nullptr;
-
-    if (gridVariant.isValid())
-        grid = qvariant_cast<Grid*>(gridVariant);
-    if (!grid) {
+    if (!gridVariant.isValid()) {
         QMessageBox::critical(this,
                               tr("Error ocurred"),
                               tr("Error ocurred when loading template file"));
-        m_activePainter = nullptr;
+        m_currentTool = nullptr;
         emit templatePaintingDone();
         return;
     }
-    m_activePainter = new GridTemplatePainter(m_gridview, grid, this);
-    grid->setParent(m_activePainter);
-    connect(m_activePainter, SIGNAL(done()), this, SIGNAL(templatePaintingDone()));
+
+    Grid *grid = qvariant_cast<Grid*>(gridVariant);
+    m_currentTool = new GridTemplatePainter(m_gridview, grid, this);
+    grid->setParent(m_currentTool);
+    connect(m_currentTool, SIGNAL(done()), this, SIGNAL(templatePaintingDone()));
     m_lastTemplatePainted = index;
     m_ui->canvas->setFocus(Qt::OtherFocusReason);
     statusBar()->showMessage(tr("Press [ESC] to quit insertion mode."));
-}
-
-void MainWindow::saveCurrentGrid()
-{
-    bool ok;
-    QString name = QInputDialog::getText(this, tr("Save grid as template"),
-                                         tr("Template name:"), QLineEdit::Normal,
-                                         "", &ok);
-    if (ok && !name.isEmpty())
-        if (!m_templateManager->addTemplate(name, m_grid))
-            QMessageBox::critical(this,
-                                  tr("Error ocurred"),
-                                  tr("Error ocurred when saving template file"));
 }
 
 void MainWindow::setupTemplateFilter(const QString& filter)
@@ -227,62 +150,99 @@ void MainWindow::setupTemplateFilter(const QString& filter)
     m_ui->lineEditTemplateSearch->setPalette(pal);
 }
 
-void MainWindow::setupStateMachine()
+void MainWindow::onSimulationStarted()
 {
-    QStateMachine *machine = new QStateMachine(this);
-    QState *topLevel = new QState(machine);
-    QState *idle = new QState(topLevel);
-    QState *paintingNormal = new QState(idle);
-    QState *paintingTemplate = new QState(idle);
-    QState *simulationRunning = new QState(topLevel);
-    QState *awaitUserInteraction = new QState(simulationRunning);
-    QState *doSingleStep = new QState(simulationRunning);
-    QState *normalSimulationMode = new QState(simulationRunning);
-    QState *resetSimulation = new QState(simulationRunning);
+    delete m_currentTool;
+    m_currentTool = nullptr;
+    m_ui->spinBoxGridSizeX->setEnabled(false);
+    m_ui->spinBoxGridSizeY->setEnabled(false);
+    m_ui->pushButtonClearGrid->setEnabled(false);
+    m_ui->pushButtonResetSimulation->setEnabled(true);
+    m_ui->groupBoxTemplates->setEnabled(false);
+}
 
-    topLevel->addTransition(m_ui->pushButtonStartSimulation, SIGNAL(clicked()),
-                            normalSimulationMode);
-    topLevel->addTransition(m_ui->pushButtonSimulationStep, SIGNAL(clicked()),
-                            doSingleStep);
-    topLevel->addTransition(m_ui->pushButtonResetSimulation, SIGNAL(clicked()),
-                            resetSimulation);
+void MainWindow::onSimulationEnded()
+{
+    m_ui->spinBoxGridSizeX->setEnabled(true);
+    m_ui->spinBoxGridSizeY->setEnabled(true);
+    m_ui->pushButtonClearGrid->setEnabled(true);
+    m_ui->pushButtonResetSimulation->setEnabled(m_simulation->preSimulationGrid() != nullptr);
+    m_ui->groupBoxTemplates->setEnabled(true);
+    m_ui->pushButtonStartSimulation->setChecked(false);
+    setupCellPainter();
+}
 
-    idle->setInitialState(paintingNormal);
-    idle->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
-    connect(idle, SIGNAL(entered()), this, SLOT(onIdleStateEntered()));
+void MainWindow::setupUI()
+{
+    m_ui->setupUi(this);
+}
 
-    connect(paintingNormal, SIGNAL(entered()), this, SLOT(setupNormalPainter()));
-    connect(paintingTemplate, SIGNAL(entered()), this, SLOT(setupTemplatePainter()));
-    paintingTemplate->addTransition(this, SIGNAL(templatePaintingDone()), paintingNormal);
-    idle->addTransition(m_ui->listView, SIGNAL(clicked(const QModelIndex&)), paintingTemplate);
-    idle->addTransition(m_ui->listView, SIGNAL(activated(const QModelIndex&)), paintingTemplate);
+void MainWindow::setupChildObjects()
+{
+    m_grid = new Grid({m_ui->spinBoxGridSizeX->value(),
+                m_ui->spinBoxGridSizeY->value()}, this);
+    m_gridview = new GridView(m_grid, m_ui->canvas, this);
+    m_simulation = new Simulation(m_grid, this);
+    m_templateManager = new TemplateManager(this);
+    m_sortedModel = new QSortFilterProxyModel(this);
 
-    simulationRunning->addTransition(m_simulation, SIGNAL(ended()), idle);
-    connect(simulationRunning, SIGNAL(entered()), this, SLOT(onSimulationStarted()));
+    m_sortedModel->setSourceModel(m_templateManager);
+    m_sortedModel->sort(0);
+    m_ui->listView->setModel(m_sortedModel);
 
+    new CurrentMousePositionIndicator(m_gridview, this);
 
-    normalSimulationMode->assignProperty(m_ui->pushButtonStartSimulation, "checked", true);
-    normalSimulationMode->addTransition(m_ui->pushButtonStartSimulation,
-                                        SIGNAL(clicked()), doSingleStep);
-    connect(normalSimulationMode, SIGNAL(entered()), m_simulation, SLOT(startOrContinue()));
+    m_simulation->setDelay(m_ui->dialSimulationDelay->value());
+}
 
+void MainWindow::setupSignalsAndSlots()
+{
+    connect(m_ui->spinBoxGridSizeX, SIGNAL(valueChanged(int)),
+            m_grid, SLOT(setColCount(int)));
+    connect(m_ui->spinBoxGridSizeY, SIGNAL(valueChanged(int)),
+            m_grid, SLOT(setRowCount(int)));
+    connect(m_grid, &Grid::sizeChanged, [this] (const QSize& size) {
+            m_ui->spinBoxGridSizeX->setValue(size.width());
+            m_ui->spinBoxGridSizeY->setValue(size.height());
+            m_ui->canvas->setSceneRect(m_ui->canvas->scene()->itemsBoundingRect());
+        });
 
-    awaitUserInteraction->assignProperty(m_ui->pushButtonStartSimulation, "checked", false);
+    connect(m_ui->pushButtonClearGrid, SIGNAL(clicked()), m_grid, SLOT(clear()));
+    connect(m_ui->pushButtonSaveGrid, SIGNAL(clicked()), this, SLOT(saveGridAsTemplate()));
 
+    connect(m_ui->lineEditTemplateSearch, SIGNAL(textChanged(const QString&)),
+            this, SLOT(setupTemplateFilter(const QString&)));
 
-    doSingleStep->addTransition(awaitUserInteraction);
-    connect(doSingleStep, SIGNAL(entered()), m_simulation, SLOT(startOrDoSingleStep()));
+    connect(m_ui->listView, SIGNAL(clicked(const QModelIndex&)),
+            this, SLOT(setupTemplatePainter()));
 
+    connect(m_ui->dialSimulationDelay, SIGNAL(valueChanged(int)),
+            m_simulation, SLOT(setDelay(int)));
 
-    resetSimulation->addTransition(idle);
-    connect(resetSimulation, SIGNAL(entered()), m_simulation, SLOT(reset()));
+    connect(this, &MainWindow::templatePaintingDone, [this] {
+            m_lastTemplatePainted = QModelIndex();
+            m_ui->listView->clearSelection();
+            setupCellPainter();
+        });
 
+    connect(m_ui->spinBoxZoomAmount,
+            static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged),
+            [this] (double value) {
+                m_ui->canvas->setZoomFactor(value / 100.0);
+        });
 
+    connect(m_ui->canvas, &GraphicsView::zoomFactorChanged, [this] (qreal factor) {
+            m_ui->spinBoxZoomAmount->setValue(factor * 100);
+        });
 
-    connect(this, SIGNAL(destroyed()), machine, SLOT(stop()));
-    QState *initial = new QState(topLevel);
-    topLevel->setInitialState(initial);
-    initial->addTransition(idle);
-    machine->setInitialState(topLevel);
-    machine->start();
+    connect(this, SIGNAL(destroyed()), m_simulation, SLOT(stop()));
+    connect(m_simulation, SIGNAL(started()), this, SLOT(onSimulationStarted()));
+    connect(m_simulation, SIGNAL(ended()), this, SLOT(onSimulationEnded()));
+
+    connect(m_ui->pushButtonStartSimulation, SIGNAL(clicked()), this, SLOT(controlSimulation()));
+    connect(m_ui->pushButtonSimulationStep, SIGNAL(clicked()), this, SLOT(controlSimulation()));
+    connect(m_ui->pushButtonResetSimulation, &QPushButton::clicked, [this] {
+            m_simulation->reset();
+            m_ui->pushButtonResetSimulation->setEnabled(false);
+        });
 }
