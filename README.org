@@ -1,0 +1,14 @@
+* What's this
+  *Very* simple program for simulating game of life. Qt & Boost. School project.
+
+*  Building & running
+  #+BEGIN_SRC shell
+    mkdir build
+    cd build
+    cmake ..
+    cmake --build . --config Release
+    ./gameoflife
+  #+END_SRC
+
+* License
+  See LICENSE file.
