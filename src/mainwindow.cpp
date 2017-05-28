@@ -85,7 +85,10 @@ void MainWindow::saveGridAsTemplate()
 
 void MainWindow::setupCellPainter()
 {
-    delete m_currentTool;
+    if (m_currentTool) {
+        m_currentTool->deleteLater();
+        m_currentTool = nullptr;
+    }
     m_currentTool = new CellPainter(m_gridview, this);
 }
 
@@ -98,14 +101,16 @@ void MainWindow::setupTemplatePainter()
         return;
     }
 
-    delete m_currentTool;
+    if (m_currentTool) {
+        m_currentTool->deleteLater();
+        m_currentTool = nullptr;
+    }
 
     QVariant gridVariant = m_sortedModel->data(index, GridDataRole);
     if (!gridVariant.isValid()) {
         QMessageBox::critical(this,
                               tr("Error ocurred"),
                               tr("Error ocurred when loading template file"));
-        m_currentTool = nullptr;
         emit templatePaintingDone();
         return;
     }
